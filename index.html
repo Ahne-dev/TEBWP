@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Technik Prüfungstool BW 2025/26</title>
+    <title>Technik Prüfungstool BW 2025/26 - Vollversion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
@@ -21,62 +21,74 @@
             color: #f1f5f9;
         }
 
-        /* Radio Button Styling */
+        /* UI Styles */
         .point-radio { display: none; }
         .point-label {
             cursor: pointer;
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 2px solid #475569;
             border-radius: 8px;
             transition: all 0.2s;
+            font-size: 0.8rem;
         }
         .point-radio:checked + .point-label {
             background-color: var(--accent);
             border-color: var(--accent);
             color: #0f172a;
             font-weight: bold;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
         }
 
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
 
+        /* PRINT STYLES - ANLAGE 5 & 6 */
         @media print {
+            @page { size: A4; margin: 0; }
             .no-print { display: none !important; }
             body { background: white !important; color: black !important; padding: 0 !important; }
-            #print-container { display: block !important; padding: 1.5cm; }
+            #print-container { display: block !important; width: 210mm; }
             
-            .official-header {
-                text-align: center;
-                border-bottom: 2px solid black;
-                margin-bottom: 15px;
-                padding-bottom: 5px;
+            .page { 
+                width: 210mm; 
+                height: 297mm; 
+                padding: 15mm 20mm; 
+                box-sizing: border-box; 
+                position: relative;
+                page-break-after: always;
+                font-family: "Times New Roman", Times, serif;
+                font-size: 11pt;
+                line-height: 1.3;
             }
-            .official-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
-                font-size: 10pt;
-            }
-            .official-table th, .official-table td {
-                border: 1px solid black;
-                padding: 6px;
-                text-align: left;
-            }
-            .notes-box {
-                border: 1px solid black;
-                min-height: 200px;
-                padding: 10px;
-                margin-top: 10px;
-                white-space: pre-wrap;
-                font-size: 10pt;
-            }
-            .page-break { page-break-after: always; }
+
+            .h1-off { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 5pt; }
+            .h2-off { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 15pt; text-decoration: underline; }
+            
+            .form-row { display: flex; margin-bottom: 8pt; align-items: baseline; }
+            .form-label { font-weight: bold; margin-right: 5pt; white-space: nowrap; }
+            .form-value { border-bottom: 1pt solid black; flex-grow: 1; padding-left: 5pt; min-height: 1.2em; }
+            
+            .table-off { width: 100%; border-collapse: collapse; margin-top: 10pt; border: 1.5pt solid black; }
+            .table-off th, .table-off td { border: 1pt solid black; padding: 5pt; vertical-align: top; }
+            .table-off th { background-color: #f2f2f2; text-align: center; font-size: 10pt; }
+            
+            .cat-box { border: 1pt solid black; padding: 4pt; margin-bottom: 5pt; display: flex; gap: 10pt; }
+            .cat-points { border: 2pt solid black; width: 25pt; height: 25pt; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14pt; flex-shrink: 0; }
+            .cat-text { flex-grow: 1; font-size: 10pt; }
+            .cat-marked { background-color: #eee; border: 3pt solid black !important; }
+
+            .notes-area { border: 1pt solid black; min-height: 300pt; padding: 10pt; white-space: pre-wrap; margin-top: 5pt; font-size: 10pt; }
+            
+            .footer-sig { position: absolute; bottom: 30mm; width: calc(100% - 40mm); display: flex; justify-content: space-between; }
+            .sig-line { border-top: 1pt solid black; width: 180pt; text-align: center; font-size: 9pt; padding-top: 2pt; }
+            .page-num { position: absolute; bottom: 10mm; width: calc(100% - 40mm); text-align: center; font-size: 9pt; }
+            
+            .scale-table { width: 60%; margin: 20pt auto; border-collapse: collapse; }
+            .scale-table td { border: 1pt solid black; padding: 3pt; text-align: center; }
         }
 
         #print-container { display: none; }
@@ -86,347 +98,351 @@
 
     <div class="flex h-screen overflow-hidden no-print">
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-72 bg-slate-900 border-r border-slate-700 flex flex-col transition-all">
+        <aside class="w-72 bg-slate-900 border-r border-slate-700 flex flex-col shadow-2xl z-10">
             <div class="p-4 border-b border-slate-700">
-                <h2 class="font-bold text-sky-400">Prüflinge</h2>
-                <p class="text-xs text-slate-500">Klassenliste Technik</p>
+                <h2 class="font-bold text-sky-400">Prüflingsliste</h2>
             </div>
             <div id="studentList" class="flex-grow overflow-y-auto custom-scroll p-2 space-y-1">
-                <p class="text-slate-500 text-sm p-4 text-center">Keine Liste geladen.<br>Nutze "CSV Import".</p>
+                <p class="text-slate-500 text-sm p-4 text-center italic">Liste importieren...</p>
             </div>
             <div class="p-4 bg-slate-800/50 border-t border-slate-700 space-y-2">
-                 <label class="block w-full text-center bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg cursor-pointer text-sm transition">
-                    📂 CSV Import
+                 <label class="block w-full text-center bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-lg cursor-pointer text-sm font-bold transition">
+                    📂 Import (CSV)
                     <input type="file" id="csvInput" class="hidden" accept=".csv">
                 </label>
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Main -->
         <main class="flex-grow overflow-y-auto p-6 md:p-10 custom-scroll">
-            <header class="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
+            <header class="flex justify-between items-center mb-8">
                 <div>
-                    <h1 class="text-3xl font-bold text-white">Technik Prüfung <span class="text-sky-400">v26</span></h1>
-                    <div id="statusIndicator" class="text-slate-400 text-sm flex items-center gap-2 mt-1">
-                        <span class="w-2 h-2 rounded-full bg-slate-600"></span> Bereit
-                    </div>
+                    <h1 class="text-3xl font-bold text-white">Technik Prüfung <span class="text-sky-400">2026</span></h1>
+                    <p class="text-slate-500 text-xs">Digitaler Kriterienkatalog & Niederschrift</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="exportBackup()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm transition">💾 Backup JSON</button>
-                    <button onclick="window.print()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2">
-                        🖨️ Drucken (Anlage 6)
+                <div class="flex gap-3">
+                    <button onclick="exportBackup()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-xs">Backup</button>
+                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2">
+                        <span>🖨️ Drucken (8 Seiten)</span>
                     </button>
                 </div>
             </header>
 
-            <!-- Stammdaten -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div class="flex flex-col">
-                    <label class="text-xs text-slate-500 mb-1 uppercase font-bold tracking-wider">Name des Prüflings</label>
-                    <input type="text" id="name" oninput="saveCurrentStudentData()" class="bg-slate-800 border border-slate-700 p-3 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-white">
+            <!-- Stammdaten UI -->
+            <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 block">Name des Prüflings</label>
+                    <input type="text" id="name" oninput="updateData()" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl outline-none text-sky-400 font-bold">
                 </div>
-                <div class="flex flex-col">
-                    <label class="text-xs text-slate-500 mb-1 uppercase font-bold tracking-wider">Klasse</label>
-                    <input type="text" id="klasse" oninput="saveCurrentStudentData()" class="bg-slate-800 border border-slate-700 p-3 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-white">
-                </div>
-                <div class="flex flex-col">
-                    <label class="text-xs text-slate-500 mb-1 uppercase font-bold tracking-wider">Prüfungsthema</label>
-                    <input type="text" id="thema" oninput="saveCurrentStudentData()" class="bg-slate-800 border border-slate-700 p-3 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-white">
-                </div>
-                <div class="flex flex-col">
-                    <label class="text-xs text-slate-500 mb-1 uppercase font-bold tracking-wider">Datum</label>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 block">Klasse / Thema</label>
                     <div class="flex gap-2">
-                        <input type="date" id="datum" oninput="saveCurrentStudentData()" class="bg-slate-800 border border-slate-700 p-3 rounded-xl flex-grow text-sm text-white">
-                        <button onclick="setCurrentDate()" class="bg-slate-700 p-3 rounded-xl hover:bg-slate-600 text-xs transition">Heute</button>
+                        <input type="text" id="klasse" placeholder="Klasse" oninput="updateData()" class="bg-slate-900 border border-slate-700 p-3 rounded-xl w-24 outline-none">
+                        <input type="text" id="thema" placeholder="Prüfungsthema" oninput="updateData()" class="flex-grow bg-slate-900 border border-slate-700 p-3 rounded-xl outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 block">Zeitplan & Datum</label>
+                    <div class="flex gap-2">
+                        <input type="date" id="datum" oninput="updateData()" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs flex-grow outline-none">
+                        <input type="time" id="beginn" oninput="updateData()" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs w-20 outline-none">
+                        <input type="time" id="ende" oninput="updateData()" class="bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs w-20 outline-none">
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <!-- Teil 1: Praktisch -->
-                <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                        <span class="w-8 h-8 bg-sky-500/20 text-sky-400 rounded-full flex items-center justify-center text-sm">1</span>
-                        Teil 1: Praktischer Teil
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+                <!-- Praxis -->
+                <section>
+                    <h2 class="text-lg font-bold text-sky-400 mb-4 px-2 flex justify-between">
+                        <span>Teil 1: Praktisch</span>
+                        <span id="ui-sum-p" class="bg-sky-900 text-sky-300 px-2 rounded">0 Pkt</span>
                     </h2>
-                    <div id="criteria-p" class="space-y-6"></div>
+                    <div id="ui-p" class="space-y-3"></div>
                 </section>
-
-                <!-- Teil 2: Gespräch -->
-                <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                        <span class="w-8 h-8 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center text-sm">2</span>
-                        Teil 2: Prüfungsgespräch
+                <!-- Gespräch -->
+                <section>
+                    <h2 class="text-lg font-bold text-amber-400 mb-4 px-2 flex justify-between">
+                        <span>Teil 2: Gespräch</span>
+                        <span id="ui-sum-o" class="bg-amber-900 text-amber-300 px-2 rounded">0 Pkt</span>
                     </h2>
-                    <div id="criteria-o" class="space-y-6"></div>
+                    <div id="ui-o" class="space-y-3"></div>
                 </section>
             </div>
 
-            <!-- Manuelle Notizen -->
-            <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl mb-8">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                    <h2 class="text-xl font-bold flex items-center gap-2 text-slate-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                        Niederschrift: Verlauf des Gesprächs
-                    </h2>
-                    <button onclick="autoFillNotes()" class="text-xs bg-sky-600/20 text-sky-400 border border-sky-500/30 px-3 py-1.5 rounded-lg hover:bg-sky-600/30 transition flex items-center gap-2">
-                        ✨ Kompetenztexte übernehmen
-                    </button>
+            <!-- Notizen -->
+            <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-bold text-slate-300">Gesprächsnotizen (Anlage 6)</h2>
+                    <button onclick="autoFillNotes()" class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500/20 transition">✨ Kompetenzen einfügen</button>
                 </div>
-                <textarea id="notizen" oninput="saveCurrentStudentData()" class="w-full h-64 bg-slate-900 border border-slate-700 p-4 rounded-xl text-slate-300 focus:ring-2 focus:ring-sky-500 outline-none resize-none text-sm leading-relaxed" placeholder="Hier Stichpunkte zum Gespräch eintragen oder Button oben nutzen..."></textarea>
+                <textarea id="notizen" oninput="updateData()" class="w-full h-40 bg-slate-900 border border-slate-700 p-4 rounded-xl text-sm leading-relaxed outline-none resize-none font-mono" placeholder="Stichworte zum Verlauf..."></textarea>
             </section>
-
-            <!-- Result Scoreboard -->
-            <div class="bg-slate-800/80 border border-slate-700 p-8 rounded-2xl flex flex-col md:flex-row justify-around items-center text-center">
-                <div>
-                    <p class="text-slate-400 uppercase text-xs font-bold tracking-widest mb-1">Punkte Praktisch</p>
-                    <p id="sum-p" class="text-4xl font-bold text-white">0</p>
-                </div>
-                <div class="h-12 w-px bg-slate-700 hidden md:block"></div>
-                <div>
-                    <p class="text-slate-400 uppercase text-xs font-bold tracking-widest mb-1">Punkte Gespräch</p>
-                    <p id="sum-o" class="text-4xl font-bold text-white">0</p>
-                </div>
-                <div class="h-12 w-px bg-slate-700 hidden md:block"></div>
-                <div>
-                    <p class="text-sky-400 uppercase text-xs font-bold tracking-widest mb-1">Gesamtpunktzahl</p>
-                    <p id="sum-total" class="text-6xl font-black text-sky-400">0</p>
-                </div>
-                <div class="h-12 w-px bg-slate-700 hidden md:block"></div>
-                <div>
-                    <p class="text-amber-400 uppercase text-xs font-bold tracking-widest mb-1">Endnote</p>
-                    <p id="final-grade" class="text-6xl font-black text-amber-400">-</p>
-                </div>
-            </div>
         </main>
     </div>
 
-    <!-- PRINT CONTAINER (Anlage 6 Layout) -->
+    <!-- PRINT ENGINE -->
     <div id="print-container">
-        <div class="page-break">
-            <div class="official-header">
-                <h1 style="margin:0; font-size: 16pt;">Realschulabschlussprüfung im Fach Technik</h1>
-                <p style="margin:0; font-size: 14pt;">Niederschrift über die praktische Prüfung</p>
-            </div>
+        <!-- ANLAGE 6 - SEITE 1 -->
+        <div class="page">
+            <h1 class="h1-off">Realschulabschlussprüfung im Fach Technik</h1>
+            <h2 class="h2-off">Niederschrift über die praktische Prüfung</h2>
+            <div class="form-row"><span class="form-label">Name:</span><span class="form-value" id="p6-name"></span><span class="form-label" style="margin-left:20pt">Klasse:</span><span class="form-value" style="flex-grow:0; min-width:40pt" id="p6-klasse"></span></div>
+            <div class="form-row"><span class="form-label">Thema:</span><span class="form-value" id="p6-thema"></span></div>
+            <div class="form-row"><span class="form-label">Schuljahr:</span><span class="form-value" style="flex-grow:0; min-width:80pt">2025/2026</span></div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 11pt;">
-                <div>Name: <b id="pr-name"></b></div>
-                <div>Klasse: <b id="pr-klasse"></b></div>
-                <div style="grid-column: span 2">Thema: <b id="pr-thema"></b></div>
-                <div>Datum: <b id="pr-datum"></b></div>
-                <div>Schuljahr: <b>2025/2026</b></div>
-            </div>
-
-            <h3 style="margin: 10px 0 5px 0">Teil 1: Praktischer Teil:</h3>
-            <table class="official-table">
-                <tr><th>Kriterium</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Pkt.</th></tr>
-                <tbody id="pr-table-p"></tbody>
+            <h3 style="margin-top:20pt">Teil 1: Praktischer Teil:</h3>
+            <table class="table-off">
+                <tr><th>Bewertungskriterien</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Pkt.</th></tr>
+                <tbody id="p6-t1"></tbody>
+                <tr style="background:#f9f9f9"><td colspan="7" style="text-align:right; font-weight:bold">Summe Punkte praktischer Teil:</td><td id="p6-sum-p" style="text-align:center; font-weight:bold"></td></tr>
             </table>
-
-            <h3 style="margin: 20px 0 5px 0">Teil 2: Prüfungsgespräch:</h3>
-            <div style="font-style: italic; font-size: 9pt; margin-bottom: 5px;">Stichworte zum Verlauf des Gesprächs:</div>
-            <div id="pr-notizen" class="notes-box"></div>
-
-            <table class="official-table" style="margin-top:15px">
-                <tr><th>Bewertungskriterien Gespräch</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Pkt.</th></tr>
-                <tbody id="pr-table-o"></tbody>
-            </table>
-
-            <div style="margin-top:20px; border: 2px solid black; padding: 10px; display: flex; justify-content: space-around; align-items: center;">
-                <span style="font-size: 14pt">Gesamtpunktzahl (max. 40): <b id="pr-total"></b></span>
-                <span style="font-size: 18pt">Note: <b id="pr-grade"></b></span>
-            </div>
-
-            <div style="margin-top: 50px; display: flex; justify-content: space-between;">
-                <div style="border-top: 1px solid black; width: 45%; text-align: center; font-size: 9pt; padding-top: 3px;">Fachlehrkraft der Klasse als Prüfer/in</div>
-                <div style="border-top: 1px solid black; width: 45%; text-align: center; font-size: 9pt; padding-top: 3px;">Vorsitzende/r / Zweitprüfer/in</div>
-            </div>
+            <div class="page-num">Anlage 6 - Seite 1 von 2</div>
         </div>
+
+        <!-- ANLAGE 6 - SEITE 2 -->
+        <div class="page">
+            <h1 class="h1-off">Realschulabschlussprüfung im Fach Technik</h1>
+            <h2 class="h2-off">Niederschrift über die praktische Prüfung</h2>
+            <h3 style="margin-top:10pt">Teil 2: Prüfungsgespräch: <span style="font-size: 10pt; font-weight:normal; font-style:italic">(Stichworte zum Verlauf)</span></h3>
+            <div class="notes-area" id="p6-notizen"></div>
+            <div class="form-row" style="margin-top:15pt"><span class="form-label">Datum:</span><span class="form-value" id="p6-datum"></span><span class="form-label" style="margin-left:15pt">Beginn:</span><span class="form-value" id="p6-beginn" style="flex-grow:0; min-width:40pt"></span><span class="form-label" style="margin-left:10pt">Ende:</span><span class="form-value" id="p6-ende" style="flex-grow:0; min-width:40pt"></span></div>
+            
+            <table class="table-off">
+                <tr><th>Bewertungskriterien Gespräch</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Pkt.</th></tr>
+                <tbody id="p6-t2"></tbody>
+                <tr style="background:#f9f9f9"><td colspan="7" style="text-align:right; font-weight:bold">Summe Punkte Prüfungsgespräch:</td><td id="p6-sum-o" style="text-align:center; font-weight:bold"></td></tr>
+            </table>
+
+            <div style="margin-top:20pt; border:2pt solid black; padding:12pt; display:flex; justify-content:space-between; font-weight:bold; font-size:13pt">
+                <span>Erreichte Punktzahl (max. 40): <span id="p6-total" style="text-decoration:underline"></span></span>
+                <span>Note: <span id="p6-grade" style="text-decoration:underline"></span></span>
+            </div>
+            <div class="footer-sig">
+                <div class="sig-line">Fachlehrkraft (Prüfer/in)</div>
+                <div class="sig-line">Vorsitzende/r / Zweitprüfer/in</div>
+            </div>
+            <div class="page-num">Anlage 6 - Seite 2 von 2</div>
+        </div>
+
+        <!-- ANLAGE 5 (6 SEITEN) -->
+        <!-- Diese werden dynamisch generiert -->
+        <div id="anlage-5-pages"></div>
     </div>
 
     <script>
-        const descriptions = {
-            p1: ["Keine Planungsunterlagen erstellt.", "Mangelhafte, fachlich fehlerhafte Planungsunterlagen.", "Unübersichtliche und teilweise fachlich fehlerhafte Unterlagen.", "Teilweise saubere und fachlich richtige Unterlagen.", "Weitgehend vollständige, saubere und fachlich richtige Unterlagen.", "Vollständige, saubere, übersichtliche und fachlich richtige Planungsunterlagen."],
-            p2: ["Die Funktion ist nicht erfüllt.", "Funktion ist mangelhaft erfüllt. Sensoren/Aktoren unlogisch angeordnet.", "Funktion ist teilweise erfüllt. Bedienung ist erschwert.", "Funktion entsprechend Aufgabenstellung teilweise gut erfüllt.", "Funktion weitgehend erfüllt. Sensoren/Aktoren sinnvoll angeordnet.", "Funktion in vollem Umfang erfüllt. Sensoren/Aktoren sinnvoll angeordnet und gut bedienbar."],
-            p3: ["Keine Umsetzung erkennbar.", "Mangelhafte handwerkliche Ausführung. Fehlende Stabilität.", "Unzureichende handwerkliche Ausführung (Kanten, Oberflächen).", "Teilweise saubere Ausführung. Stabilität ist gegeben.", "Weitgehend saubere und präzise Ausführung des Funktionsmodells.", "Herausragende handwerkliche Ausführung, hohe Stabilität und Präzision."],
-            p4: ["Keine Steuerung/Regelung vorhanden.", "Programm ist fehlerhaft und nicht lauffähig.", "Programm ist nur in Grundzügen lauffähig, viele logische Fehler.", "Einfache Steuerung/Regelung umgesetzt, teilweise lückenhaft.", "Weitgehend fehlerfreie Umsetzung der Steuerung/Regelung.", "Komplexe Steuerung/Regelung fehlerfrei und strukturiert programmiert."],
-            o1: ["Kann die Realisierung nicht erklären.", "Mangelhafte Erläuterung der Umsetzung.", "Kann wesentliche Teile der Realisierung nur auf Nachfrage erklären.", "Erklärt die Realisierung in Grundzügen verständlich.", "Kann die Realisierung im praktischen Teil weitgehend sicher erläutern.", "Erläutert die Realisierung präzise und fachlich fundiert."],
-            o2: ["Kein Fachwissen erkennbar.", "Lückenhaftes Grundwissen. Fachbegriffe fehlen.", "Verfügt über lückenhaftes Fachwissen, braucht viele Hilfestellungen.", "Besitzt grundlegendes Fachwissen zur Aufgabenstellung.", "Sicheres Fachwissen und gute Durchdringung der Materie.", "Hervorragende Fachkenntnisse und tiefe Durchdringung der Zusammenhänge."],
-            o3: ["Verweigert das Gespräch oder ungebührlich.", "Mangelhafte Ausdrucksweise. Keine Fachsprache.", "Nur einsilbige Antworten. Kaum Fachsprache vorhanden.", "Beteiligt sich am Gespräch, nutzt einfache Fachsprache.", "Sicheres Gesprächsverhalten und angemessene Fachsprache.", "Souveränes Gesprächsverhalten und präzise Verwendung der Fachsprache."],
-            o4: ["Keine Reflexion möglich.", "Mangelhafte Reflexion des Arbeitsprozesses.", "Kann Entscheidungen nur teilweise begründen.", "Reflektiert den Arbeitsprozess in Ansätzen.", "Gute Reflexion der Entscheidungen und des Prozesses.", "Reflektiert den Arbeitsprozess und Entscheidungen kritisch und fundiert."]
-        };
-
-        const criteria_p = [
-            { id: "p1", name: "Planung (Skizze, Verdrahtung, Tabelle)" },
-            { id: "p2", name: "Funktion (Aufgabenstellung, Sensoren/Aktoren)" },
-            { id: "p3", name: "Umsetzung Funktionsmodell (Stabilität, Bearbeitung)" },
-            { id: "p4", name: "Steuerung / Regelung (Programmierung)" }
-        ];
-
-        const criteria_o = [
-            { id: "o1", name: "Realisierung im praktischen Teil" },
-            { id: "o2", name: "Fachlichkeit und Durchdringungstiefe" },
-            { id: "o3", name: "Gesprächsverhalten und Fachsprache" },
-            { id: "o4", name: "Reflexion zum Arbeitsprozess" }
+        const CAT_DATA = [
+            { id: "p1", section: "Teil 1: Praktisch", name: "Planung (z.B. Fertigungsskizze mit Verdrahtungsplan)", descs: ["Erstellt keine Planungsunterlagen.", "Erstellt mangelhafte, fachlich fehlerhafte Planungsunterlagen.", "Erstellt unübersichtliche und teilweise fachlich fehlerhafte Unterlagen.", "Erstellt teilweise saubere, übersichtliche und fachlich richtige Unterlagen.", "Erstellt weitgehend vollständige, saubere und fachlich richtige Unterlagen.", "Erstellt vollständige, saubere, übersichtliche und fachlich richtige Planungsunterlagen."] },
+            { id: "p2", section: "Teil 1: Praktisch", name: "Funktion", descs: ["Funktion nicht erfüllt.", "Funktion mangelhaft erfüllt. Sensoren/Aktoren unlogisch.", "Funktion teilweise erfüllt. Bedienung erschwert.", "Funktion entsprechend Aufgabenstellung teilweise gut erfüllt.", "Funktion weitgehend erfüllt. Sensoren/Aktoren sinnvoll angeordnet.", "Funktion in vollem Umfang erfüllt. Sensoren/Aktoren sinnvoll angeordnet."] },
+            { id: "p3", section: "Teil 1: Praktisch", name: "Umsetzung des Funktionsmodells", descs: ["Keine Umsetzung.", "Mangelhafte Ausführung. Keine Stabilität.", "Unzureichende Ausführung (Kanten, Oberflächen).", "Teilweise saubere Ausführung. Stabilität gegeben.", "Weitgehend saubere und präzise Ausführung.", "Herausragende handwerkliche Ausführung und Präzision."] },
+            { id: "p4", section: "Teil 1: Praktisch", name: "Steuerung / Regelung", descs: ["Keine Steuerung.", "Mangelhaft programmiert, nicht lauffähig.", "Nur in Grundzügen lauffähig, logische Fehler.", "Einfache Steuerung umgesetzt, teilweise lückenhaft.", "Weitgehend fehlerfreie Umsetzung.", "Komplexe Steuerung fehlerfrei und strukturiert."] },
+            { id: "o1", section: "Teil 2: Gespräch", name: "Realisierung im praktischen Teil", descs: ["Keine Erklärung möglich.", "Mangelhafte Erläuterung.", "Kann Teile nur auf Nachfrage erklären.", "Erklärt in Grundzügen verständlich.", "Kann Realisierung weitgehend sicher erläutern.", "Erläutert Realisierung präzise und fachlich fundiert."] },
+            { id: "o2", section: "Teil 2: Gespräch", name: "Fachlichkeit und Durchdringungstiefe", descs: ["Kein Fachwissen.", "Lückenhaftes Grundwissen.", "Lückenhaftes Fachwissen, braucht Hilfe.", "Besitzt grundlegendes Fachwissen.", "Sicheres Fachwissen und gute Durchdringung.", "Hervorragende Fachkenntnisse."] },
+            { id: "o3", section: "Teil 2: Gespräch", name: "Gesprächsverhalten und Fachsprache", descs: ["Verweigert Gespräch.", "Mangelhafte Ausdrucksweise.", "Nur einsilbige Antworten.", "Beteiligt sich, einfache Fachsprache.", "Sicheres Gesprächsverhalten.", "Souveränes Gesprächsverhalten, präzise Fachsprache."] },
+            { id: "o4", section: "Teil 2: Gespräch", name: "Reflexion zum Arbeitsprozess", descs: ["Keine Reflexion.", "Mangelhafte Reflexion.", "Kann Entscheidungen nur teilweise begründen.", "Reflektiert in Ansätzen.", "Gute Reflexion der Entscheidungen.", "Reflektiert Prozess kritisch und fundiert."] }
         ];
 
         let students = [];
         let currentIndex = -1;
 
-        function getGrade(points) {
-            const table = { 40: "1,0", 39: "1,1", 38.5: "1,2", 37.5: "1,3", 36.5: "1,4", 36: "1,5", 35: "1,6", 34.5: "1,7", 33.5: "1,8", 32.5: "1,9", 32: "2,0", 31: "2,1", 30.5: "2,2", 29.5: "2,3", 28.5: "2,4", 28: "2,5", 27: "2,6", 26.5: "2,7", 25.5: "2,8", 24.5: "2,9", 24: "3,0", 23: "3,1", 22.5: "3,2", 21.5: "3,3", 20.5: "3,4", 20: "3,5", 16: "4,0", 8: "5,0", 0: "6,0" };
-            const keys = Object.keys(table).map(Number).sort((a,b) => b-a);
-            for(let k of keys) if(points >= k) return table[k];
+        const getGrade = (p) => {
+            const t = { 40: "1,0", 39: "1,1", 38.5: "1,2", 37.5: "1,3", 36.5: "1,4", 36: "1,5", 35: "1,6", 34.5: "1,7", 33.5: "1,8", 32.5: "1,9", 32: "2,0", 31: "2,1", 30.5: "2,2", 29.5: "2,3", 28.5: "2,4", 28: "2,5", 27: "2,6", 26.5: "2,7", 25.5: "2,8", 24.5: "2,9", 24: "3,0", 20: "3,5", 16: "4,0", 8: "5,0", 0: "6,0" };
+            const ks = Object.keys(t).map(Number).sort((a,b)=>b-a);
+            for(let k of ks) if(p >= k) return t[k];
             return "6,0";
-        }
+        };
 
-        function createCriteriaUI(containerId, list) {
-            const container = document.getElementById(containerId);
-            list.forEach(c => {
+        function initUI() {
+            CAT_DATA.forEach(c => {
+                const container = document.getElementById(c.id.startsWith('p') ? 'ui-p' : 'ui-o');
                 const div = document.createElement('div');
-                div.className = "flex flex-col gap-3 p-4 bg-slate-900/40 rounded-xl border border-slate-700/50";
+                div.className = "p-3 bg-slate-900/40 rounded-xl border border-slate-700/50";
                 div.innerHTML = `
-                    <p class="text-sm font-bold text-slate-200">${c.name}</p>
-                    <div class="flex justify-between items-center gap-1">
+                    <p class="text-[11px] font-bold text-slate-400 mb-2 uppercase">${c.name}</p>
+                    <div class="flex justify-between items-center gap-1 mb-2">
                         ${[0,1,2,3,4,5].map(i => `
                             <div>
-                                <input type="radio" name="${c.id}" id="${c.id}_${i}" value="${i}" class="point-radio" onchange="calculate()">
-                                <label for="${c.id}_${i}" class="point-label text-xs">${i}</label>
+                                <input type="radio" name="${c.id}" id="${c.id}_${i}" value="${i}" class="point-radio" onchange="updateData()">
+                                <label for="${c.id}_${i}" class="point-label">${i}</label>
                             </div>
                         `).join('')}
                     </div>
-                    <div id="desc-${c.id}" class="text-[11px] text-slate-500 italic min-h-[1.2rem]">Punkte wählen...</div>
+                    <div id="desc-${c.id}" class="text-[10px] text-slate-500 italic">Punkte wählen...</div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        function calculate() {
-            let pTotal = 0, oTotal = 0;
-            [...criteria_p, ...criteria_o].forEach(c => {
-                const el = document.querySelector(`input[name="${c.id}"]:checked`);
-                const descDiv = document.getElementById(`desc-${c.id}`);
-                if(el) {
-                    const val = parseInt(el.value);
-                    if(c.id.startsWith('p')) pTotal += val; else oTotal += val;
-                    descDiv.innerText = descriptions[c.id][val];
-                    descDiv.classList.replace('text-slate-500', 'text-sky-400');
+        function updateData() {
+            let pSum = 0, oSum = 0;
+            CAT_DATA.forEach(c => {
+                const val = document.querySelector(`input[name="${c.id}"]:checked`)?.value;
+                const dDiv = document.getElementById(`desc-${c.id}`);
+                if(val) {
+                    const v = parseInt(val);
+                    if(c.id.startsWith('p')) pSum += v; else oSum += v;
+                    dDiv.innerText = c.descs[v]; dDiv.classList.replace('text-slate-500', 'text-sky-400');
                 }
             });
-
-            const total = pTotal + oTotal;
+            document.getElementById('ui-sum-p').innerText = pSum + " Pkt";
+            document.getElementById('ui-sum-o').innerText = oSum + " Pkt";
+            const total = pSum + oSum;
             const grade = getGrade(total);
-            document.getElementById('sum-p').innerText = pTotal;
-            document.getElementById('sum-o').innerText = oTotal;
             document.getElementById('sum-total').innerText = total;
             document.getElementById('final-grade').innerText = grade;
 
-            updatePrintView(pTotal, oTotal, total, grade);
-            if (currentIndex !== -1) {
-                saveCurrentStudentData();
-                updateSidebarStatus(currentIndex);
-            }
+            if(currentIndex !== -1) saveStudent();
+            renderPrint(pSum, oSum, total, grade);
         }
 
-        function autoFillNotes() {
-            let notes = "";
-            [...criteria_o].forEach(c => {
-                const el = document.querySelector(`input[name="${c.id}"]:checked`);
-                if(el) {
-                    const val = parseInt(el.value);
-                    notes += `• ${c.name}: ${descriptions[c.id][val]}\n`;
-                }
-            });
+        function renderPrint(p, o, total, grade) {
+            const vals = { name: document.getElementById('name').value, klasse: document.getElementById('klasse').value, thema: document.getElementById('thema').value, datum: document.getElementById('datum').value, start: document.getElementById('beginn').value, end: document.getElementById('ende').value, notes: document.getElementById('notizen').value };
             
-            const current = document.getElementById('notizen').value;
-            if (current && !confirm("Bestehende Notizen überschreiben?")) {
-                document.getElementById('notizen').value += "\n\n" + notes;
-            } else {
-                document.getElementById('notizen').value = notes;
-            }
-            saveCurrentStudentData();
-            calculate();
-        }
+            // Anlage 6
+            document.getElementById('p6-name').innerText = vals.name;
+            document.getElementById('p6-klasse').innerText = vals.klasse;
+            document.getElementById('p6-thema').innerText = vals.thema;
+            document.getElementById('p6-datum').innerText = vals.datum;
+            document.getElementById('p6-beginn').innerText = vals.start;
+            document.getElementById('p6-ende').innerText = vals.end;
+            document.getElementById('p6-notizen').innerText = vals.notes;
+            document.getElementById('p6-sum-p').innerText = p;
+            document.getElementById('p6-sum-o').innerText = o;
+            document.getElementById('p6-total').innerText = total;
+            document.getElementById('p6-grade').innerText = grade;
 
-        function updatePrintView(pTotal, oTotal, total, grade) {
-            document.getElementById('pr-name').innerText = document.getElementById('name').value;
-            document.getElementById('pr-klasse').innerText = document.getElementById('klasse').value;
-            document.getElementById('pr-thema').innerText = document.getElementById('thema').value;
-            document.getElementById('pr-datum').innerText = document.getElementById('datum').value;
-            document.getElementById('pr-notizen').innerText = document.getElementById('notizen').value;
-            document.getElementById('pr-total').innerText = total;
-            document.getElementById('pr-grade').innerText = grade;
-
-            const renderRows = (list, target) => {
+            const makeRows = (list, target) => {
                 let h = "";
                 list.forEach(c => {
-                    const v = document.querySelector(`input[name="${c.id}"]:checked`)?.value || "";
-                    h += `<tr><td style="width:45%">${c.name}</td>${[0,1,2,3,4,5].map(i => `<td style="text-align:center;width:30px">${v==i?'<b>X</b>':''}</td>`).join('')}<td style="font-weight:bold;text-align:center;background:#f5f5f5">${v}</td></tr>`;
+                    const v = document.querySelector(`input[name="${c.id}"]:checked`)?.value;
+                    h += `<tr><td>${c.name}</td>${[0,1,2,3,4,5].map(i => `<td style="text-align:center">${v==i?'X':''}</td>`).join('')}<td style="text-align:center;font-weight:bold">${v||'0'}</td></tr>`;
                 });
                 document.getElementById(target).innerHTML = h;
             };
-            renderRows(criteria_p, 'pr-table-p');
-            renderRows(criteria_o, 'pr-table-o');
+            makeRows(CAT_DATA.filter(x=>x.id.startsWith('p')), 'p6-t1');
+            makeRows(CAT_DATA.filter(x=>x.id.startsWith('o')), 'p6-t2');
+
+            // Anlage 5 (6 Seiten)
+            renderAnlage5(vals);
         }
 
-        function setCurrentDate() { document.getElementById('datum').value = new Date().toISOString().split('T')[0]; calculate(); }
+        function renderAnlage5(vals) {
+            let html = "";
+            const chunks = [
+                { title: "Teil 1: Praktischer Teil", items: [CAT_DATA[0], CAT_DATA[1]], page: 1 },
+                { title: "Teil 1: Praktischer Teil (Fortsetzung)", items: [CAT_DATA[2], CAT_DATA[3]], page: 2 },
+                { title: "Teil 2: Prüfungsgespräch", items: [CAT_DATA[4]], page: 3 },
+                { title: "Teil 2: Prüfungsgespräch (Fortsetzung)", items: [CAT_DATA[5], CAT_DATA[6]], page: 4 },
+                { title: "Teil 2: Prüfungsgespräch (Abschluss)", items: [CAT_DATA[7]], page: 5 }
+            ];
 
-        function exportBackup() {
-            const blob = new Blob([JSON.stringify({students}, null, 2)], {type: 'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Technik_Backup.json`; a.click();
+            chunks.forEach(chunk => {
+                html += `
+                <div class="page">
+                    <h1 class="h1-off">Realschulabschlussprüfung</h1>
+                    <h2 class="h2-off">Kriterienkatalog für die praktische Prüfung</h2>
+                    <div class="form-row"><span class="form-label">Name:</span><span class="form-value">${vals.name}</span></div>
+                    <div class="form-row"><span class="form-label">Klasse:</span><span class="form-value">${vals.klasse}</span><span class="form-label" style="margin-left:15pt">Datum:</span><span class="form-value">${vals.datum}</span></div>
+                    <div class="form-row"><span class="form-label">Thema:</span><span class="form-value">${vals.thema}</span></div>
+                    
+                    <h3 style="margin: 15pt 0 5pt 0">${chunk.title}</h3>
+                    ${chunk.items.map(item => {
+                        const val = document.querySelector(`input[name="${item.id}"]:checked`)?.value;
+                        return `
+                        <div style="margin-bottom: 15pt">
+                            <p style="font-weight:bold; text-decoration:underline; font-size:11pt; margin-bottom:5pt">${item.name}</p>
+                            ${item.descs.slice().reverse().map((d, i) => {
+                                const score = 5 - i;
+                                return `
+                                <div class="cat-box ${val == score ? 'cat-marked' : ''}">
+                                    <div class="cat-points">${score}</div>
+                                    <div class="cat-text">${d}</div>
+                                </div>`;
+                            }).join('')}
+                        </div>`;
+                    }).join('')}
+                    <div class="page-num">Anlage 5 - Seite ${chunk.page} von 6</div>
+                </div>`;
+            });
+
+            // Seite 6: Skala
+            html += `
+            <div class="page">
+                <h1 class="h1-off">Realschulabschlussprüfung</h1>
+                <h2 class="h2-off">Bewertungsschlüssel Technik</h2>
+                <div style="text-align:center; margin-top:30pt">
+                    <h3>Übersicht der Notenpunkte</h3>
+                    <table class="scale-table">
+                        <tr><td>Punkte</td><td>Note</td></tr>
+                        <tr><td>40</td><td>1,0</td></tr>
+                        <tr><td>32</td><td>2,0</td></tr>
+                        <tr><td>24</td><td>3,0</td></tr>
+                        <tr><td>16</td><td>4,0</td></tr>
+                        <tr><td>8</td><td>5,0</td></tr>
+                        <tr><td>0</td><td>6,0</td></tr>
+                    </table>
+                    <p style="margin-top:50pt">Die Gesamtnote ergibt sich aus der Summe der Punkte von Teil 1 und Teil 2.</p>
+                </div>
+                <div class="page-num">Anlage 5 - Seite 6 von 6</div>
+            </div>`;
+
+            document.getElementById('anlage-5-pages').innerHTML = html;
         }
 
-        document.getElementById('csvInput').addEventListener('change', function(e) {
-            Papa.parse(e.target.files[0], { header: true, delimiter: ";", skipEmptyLines: true, complete: function(r) {
-                students = r.data.map(row => {
-                    let n = row.Name || "";
-                    if(n.includes(',')) { const p = n.split(',').map(s=>s.trim()); n = `${p[1]} ${p[0]}`; }
-                    return { name: n, klasse: row.Klasse || "", thema: "", datum: document.getElementById('datum').value, notizen: "", points: {} };
-                });
-                renderSidebar(); if(students.length > 0) loadStudent(0);
-            }});
-        });
+        function autoFillNotes() {
+            let n = "";
+            CAT_DATA.filter(x=>x.id.startsWith('o')).forEach(c => {
+                const v = document.querySelector(`input[name="${c.id}"]:checked`)?.value;
+                if(v) n += `• ${c.name} (${v} Pkt): ${c.descs[v]}\n`;
+            });
+            document.getElementById('notizen').value = n; updateData();
+        }
 
-        function renderSidebar() {
+        function saveStudent() {
+            const pts = {}; CAT_DATA.forEach(c => pts[c.id] = document.querySelector(`input[name="${c.id}"]:checked`)?.value || null);
+            students[currentIndex] = { name: document.getElementById('name').value, klasse: document.getElementById('klasse').value, thema: document.getElementById('thema').value, datum: document.getElementById('datum').value, start: document.getElementById('beginn').value, end: document.getElementById('ende').value, notes: document.getElementById('notizen').value, points: pts };
+            updateSidebar();
+        }
+
+        function loadStudent(idx) {
+            currentIndex = idx; const s = students[idx];
+            document.getElementById('name').value = s.name; document.getElementById('klasse').value = s.klasse; document.getElementById('thema').value = s.thema;
+            document.getElementById('datum').value = s.datum || new Date().toISOString().split('T')[0];
+            document.getElementById('beginn').value = s.start; document.getElementById('ende').value = s.end; document.getElementById('notizen').value = s.notes;
+            CAT_DATA.forEach(c => {
+                document.querySelectorAll(`input[name="${c.id}"]`).forEach(r => r.checked = false);
+                if(s.points[c.id] !== null) { const rb = document.getElementById(`${c.id}_${s.points[c.id]}`); if(rb) rb.checked = true; }
+            });
+            updateData(); updateSidebar();
+        }
+
+        function updateSidebar() {
             const l = document.getElementById('studentList'); l.innerHTML = "";
             students.forEach((s, idx) => {
                 const b = document.createElement('button');
-                b.className = `w-full text-left p-3 rounded-lg text-sm flex justify-between items-center ${currentIndex===idx?'bg-sky-600 text-white font-bold':'text-slate-400 hover:bg-slate-800'}`;
+                b.className = `w-full text-left p-3 rounded-xl text-sm transition-all mb-1 ${currentIndex===idx?'bg-sky-600 text-white font-bold shadow-lg':'text-slate-400 hover:bg-slate-800'}`;
+                b.innerText = s.name || "Unbenannt";
                 b.onclick = () => loadStudent(idx);
-                const done = Object.values(s.points).filter(v=>v!==null).length >= 8;
-                b.innerHTML = `<span class="truncate">${s.name}</span>${done?'<span class="text-[9px] bg-green-500/20 text-green-400 px-1 rounded">OK</span>':''}`;
                 l.appendChild(b);
             });
         }
 
-        function updateSidebarStatus(idx) {
-            const btns = document.getElementById('studentList').children;
-            if(btns[idx]) {
-                const s = students[idx];
-                const done = Object.values(s.points).filter(v=>v!==null).length >= 8;
-                btns[idx].querySelector('span:last-child')?.remove();
-                if(done) btns[idx].innerHTML += `<span class="text-[9px] bg-green-500/20 text-green-400 px-1 rounded">OK</span>`;
-            }
+        document.getElementById('csvInput').addEventListener('change', e => {
+            Papa.parse(e.target.files[0], { header: true, delimiter: ";", skipEmptyLines: true, complete: r => {
+                students = r.data.map(row => {
+                    let n = row.Name || ""; if(n.includes(',')) { const p = n.split(',').map(s=>s.trim()); n = `${p[1]} ${p[0]}`; }
+                    return { name: n, klasse: row.Klasse || "", thema: "", datum: "", start: "", end: "", notes: "", points: {} };
+                });
+                if(students.length > 0) loadStudent(0);
+            }});
+        });
+
+        function exportBackup() {
+            const b = new Blob([JSON.stringify({students}, null, 2)], {type:'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = "Pruefungs_Backup.json"; a.click();
         }
 
-        function saveCurrentStudentData() {
-            if (currentIndex === -1) return;
-            const points = {}; [...criteria_p, ...criteria_o].forEach(c => { points[c.id] = document.querySelector(`input[name="${c.id}"]:checked`)?.value || null; });
-            students[currentIndex] = { name: document.getElementById('name').value, klasse: document.getElementById('klasse').value, thema: document.getElementById('thema').value, datum: document.getElementById('datum').value, notizen: document.getElementById('notizen').value, points };
-        }
-
-        function loadStudent(index) {
-            saveCurrentStudentData(); currentIndex = index; const s = students[index];
-            document.getElementById('name').value = s.name; document.getElementById('klasse').value = s.klasse; document.getElementById('thema').value = s.thema || "";
-            document.getElementById('datum').value = s.datum || new Date().toISOString().split('T')[0]; document.getElementById('notizen').value = s.notizen || "";
-            [...criteria_p, ...criteria_o].forEach(c => {
-                const v = s.points[c.id]; document.querySelectorAll(`input[name="${c.id}"]`).forEach(r => r.checked = false);
-                if(v !== null && v !== undefined) { const i = document.getElementById(`${c.id}_${v}`); if(i) i.checked = true; }
-            });
-            renderSidebar(); calculate();
-        }
-
-        createCriteriaUI('criteria-p', criteria_p); createCriteriaUI('criteria-o', criteria_o); setCurrentDate();
+        initUI(); document.getElementById('datum').value = new Date().toISOString().split('T')[0];
     </script>
 </body>
 </html>
