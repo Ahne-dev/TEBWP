@@ -66,7 +66,7 @@
             
             .page { 
                 width: 210mm; 
-                height: 296mm; 
+                height: 297mm; 
                 padding: 15mm 20mm; 
                 box-sizing: border-box; 
                 position: relative;
@@ -79,49 +79,50 @@
             }
 
             .official-header-small {
-                font-size: 10pt;
+                font-size: 10.5pt;
                 margin-bottom: 25pt;
-                line-height: 1.1;
+                line-height: 1.2;
+                font-weight: normal;
             }
 
             .official-title-box {
                 text-align: center;
-                margin-bottom: 20pt;
+                margin-bottom: 25pt;
             }
-            .official-title { font-size: 15pt; font-weight: bold; margin-bottom: 4pt; }
-            .official-subtitle { font-size: 13pt; font-weight: bold; text-decoration: underline; }
+            .official-title { font-size: 16pt; font-weight: bold; margin-bottom: 6pt; }
+            .official-subtitle { font-size: 14pt; font-weight: bold; text-decoration: underline; }
 
             .form-section { margin-top: 15pt; }
-            .form-line-item { display: flex; margin-bottom: 10pt; align-items: flex-end; width: 100%; }
-            .form-label-bold { font-weight: bold; margin-right: 6pt; font-size: 11pt; white-space: nowrap; }
-            .form-underline { border-bottom: 0.7pt solid black; flex-grow: 1; min-height: 1.1em; padding-left: 4pt; font-size: 11pt; }
+            .form-line-item { display: flex; margin-bottom: 12pt; align-items: flex-end; width: 100%; }
+            .form-label-bold { font-weight: bold; margin-right: 8pt; font-size: 11.5pt; white-space: nowrap; }
+            .form-underline { border-bottom: 1pt solid black; flex-grow: 1; min-height: 1.3em; padding-left: 6pt; font-size: 11.5pt; }
             
             .table-container { margin-top: 20pt; }
-            .official-table { width: 100%; border-collapse: collapse; border: 1.2pt solid black; }
-            .official-table th, .official-table td { border: 1pt solid black; padding: 5pt; font-size: 10pt; vertical-align: middle; }
-            .official-table th { background: #f2f2f2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; }
+            .official-table { width: 100%; border-collapse: collapse; border: 1.5pt solid black; }
+            .official-table th, .official-table td { border: 1pt solid black; padding: 7pt; font-size: 10.5pt; vertical-align: middle; }
+            .official-table th { background: #e8e8e8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-align: center; }
             
-            .crit-block { border: 0.8pt solid black; margin-bottom: 5pt; display: flex; align-items: stretch; page-break-inside: avoid; }
-            .crit-desc { flex-grow: 1; padding: 6pt; font-size: 9.5pt; line-height: 1.2; border-right: 0.8pt solid black; }
-            .crit-pts { width: 30pt; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12pt; }
-            .crit-selected { background: #e0e0e0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2pt solid black !important; }
+            .crit-block { border: 1pt solid black; margin-bottom: 6pt; display: flex; align-items: stretch; page-break-inside: avoid; }
+            .crit-desc { flex-grow: 1; padding: 8pt; font-size: 10pt; line-height: 1.3; border-right: 1pt solid black; }
+            .crit-pts { width: 35pt; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14pt; }
+            .crit-selected { background: #dcdcdc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2.5pt solid black !important; }
 
             .notes-textarea-print { 
                 border: 1pt solid black; 
-                height: 380pt; 
+                height: 420pt; 
                 width: 100%; 
-                margin-top: 5pt; 
-                padding: 10pt; 
-                font-size: 10.5pt; 
+                margin-top: 8pt; 
+                padding: 12pt; 
+                font-size: 11pt; 
                 white-space: pre-wrap; 
-                line-height: 1.5;
+                line-height: 1.6;
                 font-family: inherit;
             }
 
             .summary-total-box {
-                margin-top: 25pt;
+                margin-top: 30pt;
                 border: 2pt solid black;
-                padding: 10pt 20pt;
+                padding: 12pt 25pt;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -129,11 +130,13 @@
             }
 
             .sig-row { position: absolute; bottom: 35mm; width: calc(100% - 40mm); display: flex; justify-content: space-between; }
-            .sig-field { border-top: 0.8pt solid black; width: 42%; text-align: center; font-size: 8.5pt; padding-top: 4pt; }
-            .page-marker { position: absolute; bottom: 10mm; width: calc(100% - 40mm); text-align: center; font-size: 8.5pt; font-style: italic; }
+            .sig-field { border-top: 1pt solid black; width: 44%; text-align: center; font-size: 9pt; padding-top: 6pt; font-weight: normal; }
+            .page-marker { position: absolute; bottom: 10mm; width: calc(100% - 40mm); text-align: center; font-size: 9.5pt; font-style: normal; }
             
-            .key-table { width: 75%; margin: 20pt auto; border-collapse: collapse; }
-            .key-table td, .key-table th { border: 0.8pt solid black; padding: 3pt; text-align: center; font-size: 9pt; }
+            .key-table-wrapper { display: flex; gap: 20pt; justify-content: center; margin-top: 10pt; }
+            .key-table { width: 45%; border-collapse: collapse; }
+            .key-table td, .key-table th { border: 0.8pt solid black; padding: 3pt 6pt; text-align: center; font-size: 8.5pt; }
+            .key-table th { background: #f0f0f0; }
         }
 
         #print-container { display: none; }
@@ -152,11 +155,11 @@
                 <p class="text-slate-500 text-sm p-4 text-center italic">Liste importieren...</p>
             </div>
             <div class="p-4 bg-slate-800/50 border-t border-slate-700 space-y-3">
-                 <label class="block w-full text-center bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-xl cursor-pointer text-sm font-bold transition">
+                 <label class="block w-full text-center bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-xl cursor-pointer text-sm font-bold transition shadow-md active:scale-95">
                     📂 Import (CSV)
                     <input type="file" id="csvInput" class="hidden" accept=".csv">
                 </label>
-                <button onclick="exportBackup()" class="w-full text-center bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-xs transition">💾 Backup JSON</button>
+                <button onclick="exportBackup()" class="w-full text-center bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-xs transition active:scale-95">💾 Backup JSON</button>
             </div>
         </aside>
 
@@ -165,7 +168,7 @@
             <header class="flex justify-between items-start mb-8">
                 <div>
                     <h1 class="text-3xl font-extrabold text-white">Prüfungsmanagement <span class="text-sky-400">Technik</span></h1>
-                    <p class="text-slate-400 text-sm mt-1">Amtliche Dokumentation Anlage 5 & 6</p>
+                    <p class="text-slate-400 text-sm mt-1">Dokumenten-Präzision Anlage 5 & 6</p>
                 </div>
                 <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-2xl font-bold shadow-xl flex items-center gap-2 transition transform active:scale-95">
                     🖨️ Ausdruck (8 Seiten)
@@ -198,17 +201,17 @@
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
                 <!-- Praxis -->
                 <section>
-                    <div class="flex justify-between items-center mb-4 px-2">
-                        <h2 class="text-lg font-bold text-white uppercase tracking-tighter">Teil 1: Praktisch</h2>
-                        <span id="ui-sum-p" class="bg-sky-500/10 text-sky-400 px-3 py-1 rounded-full text-xs font-bold border border-sky-500/20">0 / 20</span>
+                    <div class="flex justify-between items-center mb-4 px-2 text-sky-400">
+                        <h2 class="text-lg font-bold uppercase tracking-widest">Teil 1: Praktisch</h2>
+                        <span id="ui-sum-p" class="bg-sky-500/10 px-3 py-1 rounded-full text-xs font-bold border border-sky-500/20">0 / 20</span>
                     </div>
                     <div id="ui-p" class="space-y-3"></div>
                 </section>
                 <!-- Gespräch -->
                 <section>
-                    <div class="flex justify-between items-center mb-4 px-2">
-                        <h2 class="text-lg font-bold text-white uppercase tracking-tighter">Teil 2: Gespräch</h2>
-                        <span id="ui-sum-o" class="bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/20">0 / 20</span>
+                    <div class="flex justify-between items-center mb-4 px-2 text-amber-400">
+                        <h2 class="text-lg font-bold uppercase tracking-widest">Teil 2: Gespräch</h2>
+                        <span id="ui-sum-o" class="bg-amber-500/10 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/20">0 / 20</span>
                     </div>
                     <div id="ui-o" class="space-y-3"></div>
                 </section>
@@ -218,15 +221,15 @@
             <section class="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 mb-8">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-slate-300">Gesprächsverlauf (Anlage 6)</h2>
-                    <button onclick="autoFillNotes()" class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30 px-3 py-1.5 rounded-full hover:bg-sky-500/20 transition-all font-bold uppercase tracking-widest">Kompetenztexte laden</button>
+                    <button onclick="autoFillNotes()" class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30 px-3 py-1.5 rounded-full hover:bg-sky-500/20 transition-all font-bold uppercase tracking-widest">Kompetenzen laden</button>
                 </div>
-                <textarea id="notizen" oninput="updateData()" class="w-full h-48 bg-slate-950 border border-slate-800 p-4 rounded-2xl text-sm leading-relaxed outline-none resize-none font-mono focus:border-sky-500 transition text-slate-300" placeholder="Stichworte zum Gespräch..."></textarea>
+                <textarea id="notizen" oninput="updateData()" class="w-full h-48 bg-slate-950 border border-slate-800 p-4 rounded-2xl text-sm leading-relaxed outline-none resize-none font-mono focus:border-sky-500 transition text-slate-300 shadow-inner" placeholder="Stichworte zum Gespräch..."></textarea>
             </section>
 
             <!-- Scoreboard -->
             <div class="bg-slate-900 border border-slate-800 p-8 rounded-[2.5rem] flex justify-around items-center shadow-inner">
                 <div class="text-center">
-                    <p class="text-[10px] text-slate-600 uppercase font-black tracking-widest mb-1">Summe</p>
+                    <p class="text-[10px] text-slate-600 uppercase font-black tracking-widest mb-1">Gesamt</p>
                     <p id="sum-total" class="text-7xl font-black text-white">0</p>
                 </div>
                 <div class="h-16 w-px bg-slate-800"></div>
@@ -250,31 +253,31 @@
             <div class="form-section">
                 <div class="form-line-item"><span class="form-label-bold">Name:</span><span class="form-underline" id="p6-name"></span></div>
                 <div class="form-line-item"><span class="form-label-bold">Thema:</span><span class="form-underline" id="p6-thema"></span></div>
-                <div style="display:flex; gap: 30pt;">
-                    <div class="form-line-item" style="width: 40%;"><span class="form-label-bold">Klasse:</span><span class="form-underline" id="p6-klasse"></span></div>
-                    <div class="form-line-item" style="width: 40%;"><span class="form-label-bold">Schuljahr:</span><span class="form-underline">2025/2026</span></div>
+                <div style="display:flex; gap: 40pt;">
+                    <div class="form-line-item" style="width: 35%;"><span class="form-label-bold">Klasse:</span><span class="form-underline" id="p6-klasse"></span></div>
+                    <div class="form-line-item" style="width: 45%;"><span class="form-label-bold">Schuljahr:</span><span class="form-underline">2025/2026</span></div>
                 </div>
             </div>
             
-            <h3 style="margin-top:30pt; font-size: 13pt;">Teil 1: Praktischer Teil:</h3>
+            <h3 style="margin-top:35pt; font-size: 13.5pt; font-weight: bold;">Teil 1: Praktischer Teil:</h3>
             <div class="table-container">
                 <table class="official-table">
                     <thead>
                         <tr>
-                            <th style="text-align: left; width: 60%;">Bewertungskriterien</th>
+                            <th style="text-align: left; width: 62%;">Bewertungskriterien</th>
                             <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-                            <th style="width: 40pt;">Pkt.</th>
+                            <th style="width: 45pt;">Pkt.</th>
                         </tr>
                     </thead>
                     <tbody id="p6-t1"></tbody>
                     <tr style="background:#f2f2f2">
-                        <td colspan="7" style="text-align:right; font-weight:bold; padding: 8pt;">Summe Punkte praktischer Teil:</td>
+                        <td colspan="7" style="text-align:right; font-weight:bold; padding: 10pt;">Summe Punkte praktischer Teil:</td>
                         <td id="p6-sum-p" style="text-align:center; font-weight:bold; font-size: 13pt;"></td>
                     </tr>
                 </table>
             </div>
             
-            <div class="page-marker">Anlage 6 - Seite 1 von 2</div>
+            <div class="page-marker">Seite 1 von 2</div>
         </div>
 
         <!-- ANLAGE 6 - SEITE 2 -->
@@ -284,44 +287,44 @@
                 <div class="official-subtitle">Niederschrift über die praktische Prüfung</div>
             </div>
             
-            <h3 style="margin-top:10pt; font-size: 11pt;">Teil 2: Prüfungsgespräch: <span style="font-weight:normal; font-style:italic; font-size: 10pt;">(Stichworte zum Verlauf des Gesprächs)</span></h3>
+            <h3 style="margin-top:10pt; font-size: 11.5pt; font-weight: bold;">Teil 2: Prüfungsgespräch: <span style="font-weight:normal; font-style:italic; font-size: 10.5pt;">(Stichworte zum Verlauf des Gesprächs)</span></h3>
             <div class="notes-textarea-print" id="p6-notizen"></div>
             
             <div class="form-section" style="margin-top:20pt">
-                <div style="display:flex; gap: 15pt;">
-                    <div class="form-line-item" style="width: 35%;"><span class="form-label-bold">Datum:</span><span class="form-underline" id="p6-datum"></span></div>
+                <div style="display:flex; gap: 20pt;">
+                    <div class="form-line-item" style="width: 40%;"><span class="form-label-bold">Datum:</span><span class="form-underline" id="p6-datum"></span></div>
                     <div class="form-line-item" style="width: 25%;"><span class="form-label-bold">Beginn:</span><span class="form-underline" id="p6-beginn"></span></div>
                     <div class="form-line-item" style="width: 25%;"><span class="form-label-bold">Ende:</span><span class="form-underline" id="p6-ende"></span></div>
                 </div>
             </div>
             
-            <div class="table-container" style="margin-top: 15pt;">
+            <div class="table-container" style="margin-top: 20pt;">
                 <table class="official-table">
                     <thead>
                         <tr>
                             <th style="text-align: left;">Bewertungskriterien Gespräch</th>
                             <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-                            <th style="width: 40pt;">Pkt.</th>
+                            <th style="width: 45pt;">Pkt.</th>
                         </tr>
                     </thead>
                     <tbody id="p6-t2"></tbody>
                     <tr style="background:#f2f2f2">
-                        <td colspan="7" style="text-align:right; font-weight:bold; padding: 8pt;">Summe Punkte Prüfungsgespräch:</td>
+                        <td colspan="7" style="text-align:right; font-weight:bold; padding: 10pt;">Summe Punkte Prüfungsgespräch:</td>
                         <td id="p6-sum-o" style="text-align:center; font-weight:bold; font-size: 13pt;"></td>
                     </tr>
                 </table>
             </div>
 
             <div class="summary-total-box">
-                <div style="font-size: 13pt;">Erreichte Punktzahl (max. 40): <span id="p6-total" style="text-decoration:underline; font-size: 18pt; margin-left: 10pt;"></span></div>
-                <div style="font-size: 16pt;">Note: <span id="p6-grade" style="text-decoration:underline; font-size: 22pt; margin-left: 10pt;"></span></div>
+                <div style="font-size: 14pt;">Erreichte Punktzahl (max. 40): <span id="p6-total" style="text-decoration:underline; font-size: 20pt; margin-left: 15pt;"></span></div>
+                <div style="font-size: 16pt;">Note: <span id="p6-grade" style="text-decoration:underline; font-size: 24pt; margin-left: 15pt;"></span></div>
             </div>
             
             <div class="sig-row">
                 <div class="sig-field">Fachlehrkraft der Klasse als Prüfer/in</div>
                 <div class="sig-field">Vorsitzende/r / Zweitprüfer/in</div>
             </div>
-            <div class="page-marker">Anlage 6 - Seite 2 von 2</div>
+            <div class="page-marker">Seite 2 von 2</div>
         </div>
 
         <!-- ANLAGE 5 PAGES (DYNAMICALLY GENERATED) -->
@@ -343,12 +346,42 @@
         let students = [];
         let currentIndex = -1;
 
-        const getGrade = (p) => {
-            const table = { 40: "1,0", 39: "1,1", 38.5: "1,2", 37.5: "1,3", 36.5: "1,4", 36: "1,5", 35: "1,6", 34.5: "1,7", 33.5: "1,8", 32.5: "1,9", 32: "2,0", 31: "2,1", 30.5: "2,2", 29.5: "2,3", 28.5: "2,4", 28: "2,5", 27: "2,6", 26.5: "2,7", 25.5: "2,8", 24.5: "2,9", 24: "3,0", 20: "3,5", 16: "4,0", 8: "5,0", 0: "6,0" };
-            const keys = Object.keys(table).map(Number).sort((a,b)=>b-a);
-            for(let k of keys) if(p >= k) return table[k];
+        // Erweitert den Notenschlüssel gemäß amtlicher Skala
+        function getGrade(p) {
+            if (p >= 40.0) return "1,0";
+            if (p >= 39.0) return "1,1";
+            if (p >= 38.5) return "1,2";
+            if (p >= 37.5) return "1,3";
+            if (p >= 36.5) return "1,4";
+            if (p >= 36.0) return "1,5";
+            if (p >= 35.0) return "1,6";
+            if (p >= 34.5) return "1,7";
+            if (p >= 33.5) return "1,8";
+            if (p >= 32.5) return "1,9";
+            if (p >= 32.0) return "2,0";
+            if (p >= 31.0) return "2,1";
+            if (p >= 30.5) return "2,2";
+            if (p >= 29.5) return "2,3";
+            if (p >= 28.5) return "2,4";
+            if (p >= 28.0) return "2,5";
+            if (p >= 27.0) return "2,6";
+            if (p >= 26.5) return "2,7";
+            if (p >= 25.5) return "2,8";
+            if (p >= 24.5) return "2,9";
+            if (p >= 24.0) return "3,0";
+            if (p >= 23.0) return "3,1";
+            if (p >= 22.5) return "3,2";
+            if (p >= 21.5) return "3,3";
+            if (p >= 20.5) return "3,4";
+            if (p >= 20.0) return "3,5";
+            if (p >= 19.0) return "3,6";
+            if (p >= 18.5) return "3,7";
+            if (p >= 17.5) return "3,8";
+            if (p >= 16.5) return "3,9";
+            if (p >= 16.0) return "4,0";
+            if (p >= 8.0) return "5,0";
             return "6,0";
-        };
+        }
 
         function initUI() {
             CAT_DATA.forEach(c => {
@@ -422,7 +455,7 @@
                 let h = "";
                 list.forEach(c => {
                     const v = document.querySelector(`input[name="${c.id}"]:checked`)?.value;
-                    h += `<tr><td style="font-size: 10.5pt; font-weight: bold;">${c.name}</td>${[0,1,2,3,4,5].map(i => `<td style="text-align:center">${v==i?'<b>X</b>':''}</td>`).join('')}<td style="text-align:center;font-weight:bold; background: #f9f9f9">${v||'0'}</td></tr>`;
+                    h += `<tr><td style="font-size: 11pt; font-weight: bold; padding: 10pt 8pt;">${c.name}</td>${[0,1,2,3,4,5].map(i => `<td style="text-align:center; width: 35pt;">${v==i?'<b>X</b>':''}</td>`).join('')}<td style="text-align:center;font-weight:bold; background: #f5f5f5; width: 45pt;">${v||'0'}</td></tr>`;
                 });
                 t.innerHTML = h;
             };
@@ -436,34 +469,37 @@
             const container = document.getElementById('p5-dynamic-pages'); if (!container) return;
             let html = "";
             const chunks = [
-                { title: "Teil 1: Praktischer Teil", items: [CAT_DATA[0], CAT_DATA[1]], page: 1 },
-                { title: "Teil 1: Praktischer Teil (Fortsetzung)", items: [CAT_DATA[2], CAT_DATA[3]], page: 2 },
-                { title: "Teil 2: Prüfungsgespräch", items: [CAT_DATA[4]], page: 3 },
-                { title: "Teil 2: Prüfungsgespräch (Fortsetzung)", items: [CAT_DATA[5], CAT_DATA[6]], page: 4 },
-                { title: "Teil 2: Prüfungsgespräch (Abschluss)", items: [CAT_DATA[7]], page: 5 }
+                { title: "Teil 1: Praktischer Teil", sub: "20 Punkte", items: [CAT_DATA[0], CAT_DATA[1]], page: 1 },
+                { title: "Teil 1: Praktischer Teil (Fortsetzung)", sub: "", items: [CAT_DATA[2], CAT_DATA[3]], page: 2 },
+                { title: "Teil 2: Prüfungsgespräch", sub: "20 Punkte", items: [CAT_DATA[4]], page: 3 },
+                { title: "Teil 2: Prüfungsgespräch (Fortsetzung)", sub: "", items: [CAT_DATA[5], CAT_DATA[6]], page: 4 },
+                { title: "Teil 2: Prüfungsgespräch (Abschluss)", sub: "", items: [CAT_DATA[7]], page: 5 }
             ];
 
             chunks.forEach(chunk => {
                 html += `
                 <div class="page">
                     <div class="official-header-small">Baden-Württemberg | Ministerium für Kultus, Jugend und Sport</div>
-                    <h1 class="h1-off" style="font-size: 14pt; font-weight: bold; text-align: center;">Realschulabschlussprüfung</h1>
-                    <h2 class="h2-off" style="font-size: 15pt; font-weight: bold; text-align: center; margin-bottom: 20pt; text-decoration: underline;">Kriterienkatalog für die praktische Prüfung im Fach Technik</h2>
+                    <h1 class="h1-off">Realschulabschlussprüfung</h1>
+                    <h2 class="h2-off">Kriterienkatalog für die praktische Prüfung im Fach Technik</h2>
                     
                     <div class="form-section">
-                        <div class="form-line-item" style="margin-bottom: 6pt;"><span class="form-label-bold">Schuljahr:</span><span class="form-underline">2025/2026</span></div>
-                        <div class="form-line-item" style="margin-bottom: 6pt;"><span class="form-label-bold">Name:</span><span class="form-underline">${vals.name}</span><span class="form-label-bold" style="margin-left:20pt">Klasse:</span><span class="form-underline" style="flex-grow:0; min-width:60pt">${vals.klasse}</span></div>
-                        <div class="form-line-item" style="margin-bottom: 6pt;"><span class="form-label-bold">Datum:</span><span class="form-underline" style="flex-grow:0; min-width:100pt">${vals.datum}</span></div>
-                        <div class="form-line-item" style="margin-bottom: 15pt;"><span class="form-label-bold">Thema:</span><span class="form-underline">${vals.thema}</span></div>
+                        <div class="form-line-item"><span class="form-label-bold">Schuljahr:</span><span class="form-underline">2025/2026</span></div>
+                        <div class="form-line-item"><span class="form-label-bold">Name:</span><span class="form-underline">${vals.name}</span><span class="form-label-bold" style="margin-left:25pt">Klasse:</span><span class="form-underline" style="flex-grow:0; min-width:65pt">${vals.klasse}</span></div>
+                        <div class="form-line-item"><span class="form-label-bold">Datum:</span><span class="form-underline" style="flex-grow:0; min-width:110pt">${vals.datum}</span></div>
+                        <div class="form-line-item" style="margin-bottom: 20pt;"><span class="form-label-bold">Thema:</span><span class="form-underline">${vals.thema}</span></div>
                     </div>
                     
-                    <h3 style="margin: 15pt 0 10pt 0; border-bottom: 1.5pt solid black; padding-bottom: 3pt; font-size: 12pt;">${chunk.title}</h3>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 2pt solid black; margin-bottom: 12pt; padding-bottom: 4pt;">
+                        <h3 style="margin: 0; font-size: 13pt; font-weight: bold;">${chunk.title}</h3>
+                        <span style="font-weight: bold;">${chunk.sub}</span>
+                    </div>
                     
                     ${chunk.items.map(item => {
                         const val = document.querySelector(`input[name="${item.id}"]:checked`)?.value;
                         return `
-                        <div style="margin-bottom: 12pt">
-                            <p style="font-weight:bold; font-size:10.5pt; margin-bottom:5pt; text-decoration: underline;">"${item.name}"</p>
+                        <div style="margin-bottom: 18pt">
+                            <p style="font-weight:bold; font-size: 11pt; margin-bottom:8pt; text-decoration: underline;">"${item.name}"</p>
                             ${item.descs.slice().reverse().map((d, i) => {
                                 const score = 5 - i;
                                 return `
@@ -475,7 +511,13 @@
                         </div>`;
                     }).join('')}
 
-                    <div class="page-marker">Anlage 5 - Seite ${chunk.page} von 6</div>
+                    ${chunk.page === 5 ? `
+                        <div style="text-align: right; margin-top: 30pt; font-weight: bold;">
+                            Summe Punkte Prüfungsgespräch: <span style="border: 1pt solid black; padding: 4pt 15pt; margin-left: 10pt;">${oSum}</span>
+                        </div>
+                    ` : ''}
+
+                    <div class="page-marker">Seite ${chunk.page} von 6</div>
                 </div>`;
             });
 
@@ -483,38 +525,55 @@
             html += `
             <div class="page">
                 <div class="official-header-small">Baden-Württemberg | Ministerium für Kultus, Jugend und Sport</div>
-                <h1 class="h1-off" style="font-size: 14pt; font-weight: bold; text-align: center;">Realschulabschlussprüfung</h1>
-                <h2 class="h2-off" style="font-size: 15pt; font-weight: bold; text-align: center; margin-bottom: 30pt; text-decoration: underline;">Gesamtsumme Punkte - Note</h2>
+                <h1 class="h1-off">Realschulabschlussprüfung</h1>
+                <h2 class="h2-off" style="margin-bottom: 40pt;">Gesamtsumme Punkte - Note</h2>
                 
-                <div class="table-container" style="width: 90%; margin: 0 auto;">
+                <div class="table-container" style="width: 100%;">
                     <table class="official-table">
                         <thead>
-                            <tr><th style="text-align: left; padding: 10pt;">Prüfungsbereich</th><th style="width: 80pt;">Max.</th><th style="width: 100pt;">Punkte</th></tr>
+                            <tr><th style="text-align: left; padding: 12pt;">Prüfungsbereich</th><th style="width: 100pt;">Max.</th><th style="width: 120pt;">Punkte</th></tr>
                         </thead>
                         <tbody>
-                            <tr><td style="padding: 10pt;">Teil 1: Praktischer Teil</td><td style="text-align:center">20</td><td style="text-align:center; font-weight:bold; font-size: 14pt;">${pSum}</td></tr>
-                            <tr><td style="padding: 10pt;">Teil 2: Prüfungsgespräch</td><td style="text-align:center">20</td><td style="text-align:center; font-weight:bold; font-size: 14pt;">${oSum}</td></tr>
-                            <tr style="background:#eee; font-size:15pt"><td><b>Gesamtpunktzahl</b></td><td style="text-align:center"><b>40</b></td><td style="text-align:center; font-weight:bold; font-size: 20pt;">${total}</td></tr>
+                            <tr><td style="padding: 12pt;">Teil 1: Praktischer Teil</td><td style="text-align:center">20</td><td style="text-align:center; font-weight:bold; font-size: 16pt;">${pSum}</td></tr>
+                            <tr><td style="padding: 12pt;">Teil 2: Prüfungsgespräch</td><td style="text-align:center">20</td><td style="text-align:center; font-weight:bold; font-size: 16pt;">${oSum}</td></tr>
+                            <tr style="background:#eee; font-size:16pt"><td><b>Gesamtpunktzahl</b></td><td style="text-align:center"><b>40</b></td><td style="text-align:center; font-weight:bold; font-size: 24pt;">${total}</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div style="margin: 40pt auto; text-align:center; width: 70%; border: 3pt solid black; padding: 20pt; background: #fdfdfd;">
-                    <span style="font-size: 18pt; font-weight: bold;">Note: <span style="font-size: 40pt; text-decoration: underline; margin-left: 20pt;">${grade}</span></span>
+                <div style="margin: 40pt auto; text-align:center; width: 75%; border: 3.5pt solid black; padding: 25pt; background: #fafafa;">
+                    <span style="font-size: 22pt; font-weight: bold;">Note: <span style="font-size: 48pt; text-decoration: underline; margin-left: 25pt;">${grade}</span></span>
                 </div>
 
-                <div style="margin-top: 30pt;">
-                    <h3 style="text-decoration: underline; text-align:center; margin-bottom: 10pt; font-size: 11pt;">Offizieller Bewertungsschlüssel Technik BW</h3>
-                    <table class="key-table">
-                        <thead><tr><th>Punkte</th><th>Note</th><th>Punkte</th><th>Note</th></tr></thead>
-                        <tbody>
-                            <tr><td>40,0</td><td>1,0</td><td>24,0 - 24,5</td><td>3,0</td></tr>
-                            <tr><td>38,5 - 39,5</td><td>1,2</td><td>20,0 - 20,5</td><td>3,5</td></tr>
-                            <tr><td>36,0 - 37,0</td><td>1,5</td><td>16,0 - 16,5</td><td>4,0</td></tr>
-                            <tr><td>32,0 - 33,0</td><td>2,0</td><td>8,0 - 8,5</td><td>5,0</td></tr>
-                            <tr><td>28,0 - 29,0</td><td>2,5</td><td>0,0 - 0,5</td><td>6,0</td></tr>
-                        </tbody>
-                    </table>
+                <div style="margin-top: 25pt;">
+                    <h3 style="text-decoration: underline; text-align:center; margin-bottom: 12pt; font-size: 12pt;">Bewertungsschlüssel</h3>
+                    <div class="key-table-wrapper">
+                        <table class="key-table">
+                            <thead><tr><th>Punkte</th><th>Note</th></tr></thead>
+                            <tbody>
+                                <tr><td>40,0</td><td>1,0</td></tr>
+                                <tr><td>39,0 - 39,5</td><td>1,1</td></tr>
+                                <tr><td>38,5</td><td>1,2</td></tr>
+                                <tr><td>37,5 - 38,0</td><td>1,3</td></tr>
+                                <tr><td>36,5 - 37,0</td><td>1,4</td></tr>
+                                <tr><td>36,0</td><td>1,5</td></tr>
+                                <tr><td>35,0 - 35,5</td><td>1,6</td></tr>
+                                <tr><td>34,5</td><td>1,7</td></tr>
+                            </tbody>
+                        </table>
+                        <table class="key-table">
+                            <thead><tr><th>Punkte</th><th>Note</th></tr></thead>
+                            <tbody>
+                                <tr><td>32,0</td><td>2,0</td></tr>
+                                <tr><td>28,0</td><td>2,5</td></tr>
+                                <tr><td>24,0</td><td>3,0</td></tr>
+                                <tr><td>20,0</td><td>3,5</td></tr>
+                                <tr><td>16,0</td><td>4,0</td></tr>
+                                <tr><td>8,0</td><td>5,0</td></tr>
+                                <tr><td>0,0</td><td>6,0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="sig-row">
@@ -522,7 +581,7 @@
                     <div class="sig-field">Vorsitzende/r / Zweitprüfer/in</div>
                 </div>
 
-                <div class="page-marker">Anlage 5 - Seite 6 von 6</div>
+                <div class="page-marker">Seite 6 von 6</div>
             </div>`;
 
             container.innerHTML = html;
