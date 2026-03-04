@@ -48,21 +48,43 @@
 
         /* PRINT STYLES - ANLAGE 5 & 6 */
         @media print {
-            @page { size: A4; margin: 0; }
+            @page { 
+                size: A4; 
+                margin: 0; 
+            }
+            html, body {
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
             .no-print { display: none !important; }
-            body { background: white !important; color: black !important; padding: 0 !important; }
-            #print-container { display: block !important; width: 210mm; }
+            #print-container { 
+                display: block !important; 
+                width: 210mm;
+                margin: 0 auto;
+            }
             
             .page { 
                 width: 210mm; 
-                height: 297mm; 
+                min-height: 290mm;
                 padding: 15mm 20mm; 
                 box-sizing: border-box; 
                 position: relative;
-                page-break-after: always;
+                page-break-after: always !important;
+                break-after: page !important;
                 font-family: "Times New Roman", Times, serif;
                 font-size: 11pt;
                 line-height: 1.3;
+                background: white;
+            }
+
+            /* Spezifische Korrektur für Chrome/Edge Umbrüche */
+            .page + .page {
+                page-break-before: always !important;
+                break-before: page !important;
             }
 
             .h1-off { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 5pt; }
@@ -76,12 +98,12 @@
             .table-off th, .table-off td { border: 1pt solid black; padding: 5pt; vertical-align: top; }
             .table-off th { background-color: #f2f2f2; text-align: center; font-size: 10pt; }
             
-            .cat-box { border: 1pt solid black; padding: 4pt; margin-bottom: 5pt; display: flex; gap: 10pt; }
+            .cat-box { border: 1pt solid black; padding: 4pt; margin-bottom: 5pt; display: flex; gap: 10pt; background: white; }
             .cat-points { border: 2pt solid black; width: 25pt; height: 25pt; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14pt; flex-shrink: 0; }
             .cat-text { flex-grow: 1; font-size: 10pt; }
-            .cat-marked { background-color: #eee; border: 3pt solid black !important; }
+            .cat-marked { background-color: #eee !important; border: 3pt solid black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-            .notes-area { border: 1pt solid black; min-height: 300pt; padding: 10pt; white-space: pre-wrap; margin-top: 5pt; font-size: 10pt; }
+            .notes-area { border: 1pt solid black; min-height: 300pt; padding: 10pt; white-space: pre-wrap; margin-top: 5pt; font-size: 10pt; line-height: 1.4; }
             
             .footer-sig { position: absolute; bottom: 30mm; width: calc(100% - 40mm); display: flex; justify-content: space-between; }
             .sig-line { border-top: 1pt solid black; width: 180pt; text-align: center; font-size: 9pt; padding-top: 2pt; }
@@ -226,13 +248,12 @@
         </div>
 
         <!-- ANLAGE 5 (6 SEITEN) -->
-        <!-- Diese werden dynamisch generiert -->
         <div id="anlage-5-pages"></div>
     </div>
 
     <script>
         const CAT_DATA = [
-            { id: "p1", section: "Teil 1: Praktisch", name: "Planung (z.B. Fertigungsskizze mit Verdrahtungsplan)", descs: ["Erstellt keine Planungsunterlagen.", "Erstellt mangelhafte, fachlich fehlerhafte Planungsunterlagen.", "Erstellt unübersichtliche und teilweise fachlich fehlerhafte Unterlagen.", "Erstellt teilweise saubere, übersichtliche und fachlich richtige Unterlagen.", "Erstellt weitgehend vollständige, saubere und fachlich richtige Unterlagen.", "Erstellt vollständige, saubere, übersichtliche und fachlich richtige Planungsunterlagen."] },
+            { id: "p1", section: "Teil 1: Praktisch", name: "Planung (z. B. Fertigungsskizze mit Verdrahtungsplan)", descs: ["Erstellt keine Planungsunterlagen.", "Erstellt mangelhafte, fachlich fehlerhafte Planungsunterlagen.", "Erstellt unübersichtliche und teilweise fachlich fehlerhafte Unterlagen.", "Erstellt teilweise saubere, übersichtliche und fachlich richtige Unterlagen.", "Erstellt weitgehend vollständige, saubere und fachlich richtige Unterlagen.", "Erstellt vollständige, saubere, übersichtliche und fachlich richtige Planungsunterlagen."] },
             { id: "p2", section: "Teil 1: Praktisch", name: "Funktion", descs: ["Funktion nicht erfüllt.", "Funktion mangelhaft erfüllt. Sensoren/Aktoren unlogisch.", "Funktion teilweise erfüllt. Bedienung erschwert.", "Funktion entsprechend Aufgabenstellung teilweise gut erfüllt.", "Funktion weitgehend erfüllt. Sensoren/Aktoren sinnvoll angeordnet.", "Funktion in vollem Umfang erfüllt. Sensoren/Aktoren sinnvoll angeordnet."] },
             { id: "p3", section: "Teil 1: Praktisch", name: "Umsetzung des Funktionsmodells", descs: ["Keine Umsetzung.", "Mangelhafte Ausführung. Keine Stabilität.", "Unzureichende Ausführung (Kanten, Oberflächen).", "Teilweise saubere Ausführung. Stabilität gegeben.", "Weitgehend saubere und präzise Ausführung.", "Herausragende handwerkliche Ausführung und Präzision."] },
             { id: "p4", section: "Teil 1: Praktisch", name: "Steuerung / Regelung", descs: ["Keine Steuerung.", "Mangelhaft programmiert, nicht lauffähig.", "Nur in Grundzügen lauffähig, logische Fehler.", "Einfache Steuerung umgesetzt, teilweise lückenhaft.", "Weitgehend fehlerfreie Umsetzung.", "Komplexe Steuerung fehlerfrei und strukturiert."] },
@@ -255,6 +276,7 @@
         function initUI() {
             CAT_DATA.forEach(c => {
                 const container = document.getElementById(c.id.startsWith('p') ? 'ui-p' : 'ui-o');
+                if (!container) return;
                 const div = document.createElement('div');
                 div.className = "p-3 bg-slate-900/40 rounded-xl border border-slate-700/50";
                 div.innerHTML = `
@@ -281,43 +303,76 @@
                 if(val) {
                     const v = parseInt(val);
                     if(c.id.startsWith('p')) pSum += v; else oSum += v;
-                    dDiv.innerText = c.descs[v]; dDiv.classList.replace('text-slate-500', 'text-sky-400');
+                    if (dDiv) {
+                        dDiv.innerText = c.descs[v]; 
+                        dDiv.classList.remove('text-slate-500');
+                        dDiv.classList.add('text-sky-400');
+                    }
+                } else {
+                    if (dDiv) {
+                        dDiv.innerText = "Punkte wählen...";
+                        dDiv.classList.add('text-slate-500');
+                        dDiv.classList.remove('text-sky-400');
+                    }
                 }
             });
-            document.getElementById('ui-sum-p').innerText = pSum + " Pkt";
-            document.getElementById('ui-sum-o').innerText = oSum + " Pkt";
+
+            const uiSumP = document.getElementById('ui-sum-p');
+            if (uiSumP) uiSumP.innerText = pSum + " Pkt";
+            const uiSumO = document.getElementById('ui-sum-o');
+            if (uiSumO) uiSumO.innerText = oSum + " Pkt";
+
             const total = pSum + oSum;
             const grade = getGrade(total);
-            document.getElementById('sum-total').innerText = total;
-            document.getElementById('final-grade').innerText = grade;
+
+            const sumTotal = document.getElementById('sum-total');
+            if (sumTotal) sumTotal.innerText = total;
+            const finalGrade = document.getElementById('final-grade');
+            if (finalGrade) finalGrade.innerText = grade;
 
             if(currentIndex !== -1) saveStudent();
             renderPrint(pSum, oSum, total, grade);
         }
 
         function renderPrint(p, o, total, grade) {
-            const vals = { name: document.getElementById('name').value, klasse: document.getElementById('klasse').value, thema: document.getElementById('thema').value, datum: document.getElementById('datum').value, start: document.getElementById('beginn').value, end: document.getElementById('ende').value, notes: document.getElementById('notizen').value };
+            const getVal = (id) => document.getElementById(id)?.value || "";
+            const vals = { 
+                name: getVal('name'), 
+                klasse: getVal('klasse'), 
+                thema: getVal('thema'), 
+                datum: getVal('datum'), 
+                start: getVal('beginn'), 
+                end: getVal('ende'), 
+                notes: getVal('notizen') 
+            };
             
-            // Anlage 6
-            document.getElementById('p6-name').innerText = vals.name;
-            document.getElementById('p6-klasse').innerText = vals.klasse;
-            document.getElementById('p6-thema').innerText = vals.thema;
-            document.getElementById('p6-datum').innerText = vals.datum;
-            document.getElementById('p6-beginn').innerText = vals.start;
-            document.getElementById('p6-ende').innerText = vals.end;
-            document.getElementById('p6-notizen').innerText = vals.notes;
-            document.getElementById('p6-sum-p').innerText = p;
-            document.getElementById('p6-sum-o').innerText = o;
-            document.getElementById('p6-total').innerText = total;
-            document.getElementById('p6-grade').innerText = grade;
+            const setPrint = (id, text) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = text;
+            };
 
-            const makeRows = (list, target) => {
+            // Anlage 6
+            setPrint('p6-name', vals.name);
+            setPrint('p6-klasse', vals.klasse);
+            setPrint('p6-thema', vals.thema);
+            setPrint('p6-datum', vals.datum);
+            setPrint('p6-beginn', vals.start);
+            setPrint('p6-ende', vals.end);
+            setPrint('p6-notizen', vals.notes);
+            setPrint('p6-sum-p', p);
+            setPrint('p6-sum-o', o);
+            setPrint('p6-total', total);
+            setPrint('p6-grade', grade);
+
+            const makeRows = (list, targetId) => {
+                const target = document.getElementById(targetId);
+                if (!target) return;
                 let h = "";
                 list.forEach(c => {
                     const v = document.querySelector(`input[name="${c.id}"]:checked`)?.value;
                     h += `<tr><td>${c.name}</td>${[0,1,2,3,4,5].map(i => `<td style="text-align:center">${v==i?'X':''}</td>`).join('')}<td style="text-align:center;font-weight:bold">${v||'0'}</td></tr>`;
                 });
-                document.getElementById(target).innerHTML = h;
+                target.innerHTML = h;
             };
             makeRows(CAT_DATA.filter(x=>x.id.startsWith('p')), 'p6-t1');
             makeRows(CAT_DATA.filter(x=>x.id.startsWith('o')), 'p6-t2');
@@ -327,6 +382,8 @@
         }
 
         function renderAnlage5(vals) {
+            const container = document.getElementById('anlage-5-pages');
+            if (!container) return;
             let html = "";
             const chunks = [
                 { title: "Teil 1: Praktischer Teil", items: [CAT_DATA[0], CAT_DATA[1]], page: 1 },
@@ -386,7 +443,7 @@
                 <div class="page-num">Anlage 5 - Seite 6 von 6</div>
             </div>`;
 
-            document.getElementById('anlage-5-pages').innerHTML = html;
+            container.innerHTML = html;
         }
 
         function autoFillNotes() {
@@ -395,29 +452,64 @@
                 const v = document.querySelector(`input[name="${c.id}"]:checked`)?.value;
                 if(v) n += `• ${c.name} (${v} Pkt): ${c.descs[v]}\n`;
             });
-            document.getElementById('notizen').value = n; updateData();
+            const notizenEl = document.getElementById('notizen');
+            if (notizenEl) {
+                notizenEl.value = n; 
+                updateData();
+            }
         }
 
         function saveStudent() {
-            const pts = {}; CAT_DATA.forEach(c => pts[c.id] = document.querySelector(`input[name="${c.id}"]:checked`)?.value || null);
-            students[currentIndex] = { name: document.getElementById('name').value, klasse: document.getElementById('klasse').value, thema: document.getElementById('thema').value, datum: document.getElementById('datum').value, start: document.getElementById('beginn').value, end: document.getElementById('ende').value, notes: document.getElementById('notizen').value, points: pts };
+            if (currentIndex === -1) return;
+            const pts = {}; 
+            CAT_DATA.forEach(c => {
+                pts[c.id] = document.querySelector(`input[name="${c.id}"]:checked`)?.value || null;
+            });
+            const getVal = (id) => document.getElementById(id)?.value || "";
+            students[currentIndex] = { 
+                name: getVal('name'), 
+                klasse: getVal('klasse'), 
+                thema: getVal('thema'), 
+                datum: getVal('datum'), 
+                start: getVal('beginn'), 
+                end: getVal('ende'), 
+                notes: getVal('notizen'), 
+                points: pts 
+            };
             updateSidebar();
         }
 
         function loadStudent(idx) {
-            currentIndex = idx; const s = students[idx];
-            document.getElementById('name').value = s.name; document.getElementById('klasse').value = s.klasse; document.getElementById('thema').value = s.thema;
-            document.getElementById('datum').value = s.datum || new Date().toISOString().split('T')[0];
-            document.getElementById('beginn').value = s.start; document.getElementById('ende').value = s.end; document.getElementById('notizen').value = s.notes;
+            const s = students[idx];
+            if (!s) return;
+            
+            currentIndex = idx; 
+            const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ""; };
+            
+            setVal('name', s.name); 
+            setVal('klasse', s.klasse); 
+            setVal('thema', s.thema);
+            setVal('datum', s.datum || new Date().toISOString().split('T')[0]);
+            setVal('beginn', s.start); 
+            setVal('ende', s.end); 
+            setVal('notizen', s.notes);
+
             CAT_DATA.forEach(c => {
                 document.querySelectorAll(`input[name="${c.id}"]`).forEach(r => r.checked = false);
-                if(s.points[c.id] !== null) { const rb = document.getElementById(`${c.id}_${s.points[c.id]}`); if(rb) rb.checked = true; }
+                const v = s.points[c.id];
+                if(v !== null && v !== undefined) { 
+                    const rb = document.getElementById(`${c.id}_${v}`); 
+                    if(rb) rb.checked = true; 
+                }
             });
-            updateData(); updateSidebar();
+            updateData(); 
+            updateSidebar();
         }
 
         function updateSidebar() {
-            const l = document.getElementById('studentList'); l.innerHTML = "";
+            const l = document.getElementById('studentList'); 
+            if (!l) return;
+            l.innerHTML = "";
             students.forEach((s, idx) => {
                 const b = document.createElement('button');
                 b.className = `w-full text-left p-3 rounded-xl text-sm transition-all mb-1 ${currentIndex===idx?'bg-sky-600 text-white font-bold shadow-lg':'text-slate-400 hover:bg-slate-800'}`;
@@ -428,21 +520,40 @@
         }
 
         document.getElementById('csvInput').addEventListener('change', e => {
-            Papa.parse(e.target.files[0], { header: true, delimiter: ";", skipEmptyLines: true, complete: r => {
-                students = r.data.map(row => {
-                    let n = row.Name || ""; if(n.includes(',')) { const p = n.split(',').map(s=>s.trim()); n = `${p[1]} ${p[0]}`; }
-                    return { name: n, klasse: row.Klasse || "", thema: "", datum: "", start: "", end: "", notes: "", points: {} };
-                });
-                if(students.length > 0) loadStudent(0);
-            }});
+            if (!e.target.files[0]) return;
+            Papa.parse(e.target.files[0], { 
+                header: true, 
+                delimiter: ";", 
+                skipEmptyLines: true, 
+                complete: r => {
+                    students = r.data.map(row => {
+                        let n = row.Name || ""; 
+                        if(n.includes(',')) { 
+                            const p = n.split(',').map(s=>s.trim()); 
+                            n = `${p[1]} ${p[0]}`; 
+                        }
+                        return { name: n, klasse: row.Klasse || "", thema: "", datum: "", start: "", end: "", notes: "", points: {} };
+                    });
+                    if(students.length > 0) loadStudent(0);
+                }
+            });
         });
 
         function exportBackup() {
             const b = new Blob([JSON.stringify({students}, null, 2)], {type:'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = "Pruefungs_Backup.json"; a.click();
+            const a = document.createElement('a'); 
+            a.href = URL.createObjectURL(b); 
+            a.download = "Pruefungs_Backup.json"; 
+            a.click();
         }
 
-        initUI(); document.getElementById('datum').value = new Date().toISOString().split('T')[0];
+        // Init
+        window.onload = function() {
+            initUI(); 
+            const datumEl = document.getElementById('datum');
+            if (datumEl) datumEl.value = new Date().toISOString().split('T')[0];
+            updateData(); 
+        };
     </script>
 </body>
 </html>
