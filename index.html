@@ -66,8 +66,8 @@
             
             .page { 
                 width: 210mm; 
-                height: 297mm; 
-                padding: 20mm 20mm; 
+                height: 296mm; 
+                padding: 15mm 20mm; 
                 box-sizing: border-box; 
                 position: relative;
                 page-break-after: always !important;
@@ -78,54 +78,62 @@
                 border: none;
             }
 
-            /* Simulation der PDF-Linien und Felder */
-            .header-box { text-align: center; margin-bottom: 25pt; border-bottom: 1.5pt solid black; padding-bottom: 10pt; }
-            .official-title { font-size: 16pt; font-weight: bold; margin-bottom: 5pt; }
-            .official-subtitle { font-size: 14pt; font-weight: bold; text-decoration: underline; }
-
-            .form-field { display: flex; margin-bottom: 12pt; align-items: flex-end; }
-            .field-label { font-weight: bold; margin-right: 8pt; white-space: nowrap; font-size: 11pt; }
-            .field-value { border-bottom: 0.5pt solid black; flex-grow: 1; min-height: 1.2em; padding-left: 5pt; font-size: 11pt; }
-            
-            .table-official { width: 100%; border-collapse: collapse; margin-top: 15pt; }
-            .table-official th, .table-official td { border: 1pt solid black; padding: 6pt; font-size: 10.5pt; line-height: 1.2; }
-            .table-official th { background: #f0f0f0; font-weight: bold; }
-            
-            .score-box { 
-                border: 1pt solid black; 
-                margin-bottom: 8pt; 
-                display: grid; 
-                grid-template-columns: 1fr 30pt; 
-                min-height: 40pt;
+            .official-header-small {
+                font-size: 10pt;
+                margin-bottom: 25pt;
+                line-height: 1.1;
             }
-            .score-text { padding: 6pt; font-size: 9.5pt; border-right: 1pt solid black; display: flex; align-items: center; }
-            .score-num { display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12pt; }
-            .score-marked { background: #d1d1d1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-            .notes-box-official { 
+            .official-title-box {
+                text-align: center;
+                margin-bottom: 20pt;
+            }
+            .official-title { font-size: 15pt; font-weight: bold; margin-bottom: 4pt; }
+            .official-subtitle { font-size: 13pt; font-weight: bold; text-decoration: underline; }
+
+            .form-section { margin-top: 15pt; }
+            .form-line-item { display: flex; margin-bottom: 10pt; align-items: flex-end; width: 100%; }
+            .form-label-bold { font-weight: bold; margin-right: 6pt; font-size: 11pt; white-space: nowrap; }
+            .form-underline { border-bottom: 0.7pt solid black; flex-grow: 1; min-height: 1.1em; padding-left: 4pt; font-size: 11pt; }
+            
+            .table-container { margin-top: 20pt; }
+            .official-table { width: 100%; border-collapse: collapse; border: 1.2pt solid black; }
+            .official-table th, .official-table td { border: 1pt solid black; padding: 5pt; font-size: 10pt; vertical-align: middle; }
+            .official-table th { background: #f2f2f2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; }
+            
+            .crit-block { border: 0.8pt solid black; margin-bottom: 5pt; display: flex; align-items: stretch; page-break-inside: avoid; }
+            .crit-desc { flex-grow: 1; padding: 6pt; font-size: 9.5pt; line-height: 1.2; border-right: 0.8pt solid black; }
+            .crit-pts { width: 30pt; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12pt; }
+            .crit-selected { background: #e0e0e0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 2pt solid black !important; }
+
+            .notes-textarea-print { 
                 border: 1pt solid black; 
-                height: 400pt; 
+                height: 380pt; 
                 width: 100%; 
-                margin-top: 10pt; 
+                margin-top: 5pt; 
                 padding: 10pt; 
                 font-size: 10.5pt; 
                 white-space: pre-wrap; 
-                line-height: 1.6;
+                line-height: 1.5;
+                font-family: inherit;
             }
 
-            .result-official {
-                margin-top: 30pt;
+            .summary-total-box {
+                margin-top: 25pt;
                 border: 2pt solid black;
-                padding: 15pt;
+                padding: 10pt 20pt;
                 display: flex;
                 justify-content: space-between;
+                align-items: center;
                 font-weight: bold;
-                font-size: 14pt;
             }
 
-            .footer-sigs { position: absolute; bottom: 30mm; width: calc(100% - 40mm); display: flex; justify-content: space-between; }
-            .sig-placeholder { border-top: 1pt solid black; width: 45%; text-align: center; font-size: 9pt; padding-top: 5pt; }
-            .page-footer { position: absolute; bottom: 10mm; width: calc(100% - 40mm); text-align: center; font-size: 9pt; font-style: italic; }
+            .sig-row { position: absolute; bottom: 35mm; width: calc(100% - 40mm); display: flex; justify-content: space-between; }
+            .sig-field { border-top: 0.8pt solid black; width: 42%; text-align: center; font-size: 8.5pt; padding-top: 4pt; }
+            .page-marker { position: absolute; bottom: 10mm; width: calc(100% - 40mm); text-align: center; font-size: 8.5pt; font-style: italic; }
+            
+            .key-table { width: 75%; margin: 20pt auto; border-collapse: collapse; }
+            .key-table td, .key-table th { border: 0.8pt solid black; padding: 3pt; text-align: center; font-size: 9pt; }
         }
 
         #print-container { display: none; }
@@ -137,106 +145,94 @@
         <!-- Sidebar -->
         <aside class="w-80 bg-slate-900 border-r border-slate-700 flex flex-col shadow-2xl">
             <div class="p-4 border-b border-slate-700 flex justify-between items-center">
-                <h2 class="font-bold text-sky-400">Klassenliste</h2>
-                <span id="listInfo" class="text-[10px] text-slate-500">0 geladen</span>
+                <h2 class="font-bold text-sky-400">Prüflinge</h2>
+                <span id="listInfo" class="text-[10px] text-slate-500">0 Schüler</span>
             </div>
             <div id="studentList" class="flex-grow overflow-y-auto custom-scroll p-3 space-y-2">
-                <p class="text-slate-500 text-sm p-4 text-center italic">Bitte CSV importieren...</p>
+                <p class="text-slate-500 text-sm p-4 text-center italic">Liste importieren...</p>
             </div>
             <div class="p-4 bg-slate-800/50 border-t border-slate-700 space-y-3">
-                 <label class="block w-full text-center bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-xl cursor-pointer text-sm font-bold transition shadow-lg">
-                    📂 Importieren (CSV)
+                 <label class="block w-full text-center bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-xl cursor-pointer text-sm font-bold transition">
+                    📂 Import (CSV)
                     <input type="file" id="csvInput" class="hidden" accept=".csv">
                 </label>
-                <button onclick="exportBackup()" class="w-full text-center bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-xs transition">💾 JSON Backup</button>
+                <button onclick="exportBackup()" class="w-full text-center bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-xs transition">💾 Backup JSON</button>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-grow overflow-y-auto p-6 lg:p-12 custom-scroll bg-slate-950">
-            <header class="flex justify-between items-start mb-10">
+        <main class="flex-grow overflow-y-auto p-6 lg:p-10 custom-scroll bg-slate-950">
+            <header class="flex justify-between items-start mb-8">
                 <div>
-                    <h1 class="text-4xl font-extrabold text-white tracking-tight">Prüfungsplaner <span class="text-sky-400">Technik</span></h1>
-                    <p class="text-slate-400 mt-2 text-sm">BW Realschulabschlussprüfung 2025/2026</p>
+                    <h1 class="text-3xl font-extrabold text-white">Prüfungsmanagement <span class="text-sky-400">Technik</span></h1>
+                    <p class="text-slate-400 text-sm mt-1">Amtliche Dokumentation Anlage 5 & 6</p>
                 </div>
-                <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-2xl font-bold shadow-xl flex items-center gap-3 transition-all transform hover:scale-105 active:scale-95">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Drucken (8 Seiten)
+                <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-2xl font-bold shadow-xl flex items-center gap-2 transition transform active:scale-95">
+                    🖨️ Ausdruck (8 Seiten)
                 </button>
             </header>
 
             <!-- Stammdaten Eingabe -->
-            <div class="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 mb-10 grid grid-cols-1 md:grid-cols-3 gap-8 shadow-2xl backdrop-blur-sm">
-                <div>
-                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-2 block tracking-widest">Prüfling</label>
-                    <input type="text" id="name" oninput="updateData()" class="w-full bg-slate-800/50 border border-slate-700 p-3 rounded-xl outline-none text-sky-400 font-bold focus:border-sky-500 transition">
+            <div class="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-1">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-1">Prüfling</label>
+                    <input type="text" id="name" oninput="updateData()" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl outline-none text-sky-400 font-bold focus:border-sky-500 transition">
                 </div>
-                <div>
-                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-2 block tracking-widest">Klasse & Thema</label>
+                <div class="space-y-1">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-1">Klasse & Thema</label>
                     <div class="flex gap-2">
-                        <input type="text" id="klasse" placeholder="Klasse" oninput="updateData()" class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl w-24 outline-none focus:border-sky-500 transition">
-                        <input type="text" id="thema" placeholder="Prüfungsthema" oninput="updateData()" class="flex-grow bg-slate-800/50 border border-slate-700 p-3 rounded-xl outline-none focus:border-sky-500 transition">
+                        <input type="text" id="klasse" placeholder="Kl." oninput="updateData()" class="bg-slate-800 border border-slate-700 p-3 rounded-xl w-20 outline-none focus:border-sky-500 transition">
+                        <input type="text" id="thema" placeholder="Prüfungsthema" oninput="updateData()" class="flex-grow bg-slate-800 border border-slate-700 p-3 rounded-xl outline-none focus:border-sky-500 transition">
                     </div>
                 </div>
-                <div>
-                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-2 block tracking-widest">Prüfungszeitraum</label>
+                <div class="space-y-1">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-1">Datum & Zeit</label>
                     <div class="flex gap-2 items-center">
-                        <input type="date" id="datum" oninput="updateData()" class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl text-xs flex-grow outline-none">
-                        <input type="time" id="beginn" oninput="updateData()" class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl text-xs w-20 outline-none">
-                        <span class="text-slate-600">bis</span>
-                        <input type="time" id="ende" oninput="updateData()" class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl text-xs w-20 outline-none">
+                        <input type="date" id="datum" oninput="updateData()" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs flex-grow outline-none">
+                        <input type="time" id="beginn" oninput="updateData()" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs w-20 outline-none">
+                        <input type="time" id="ende" oninput="updateData()" class="bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs w-20 outline-none">
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-10 mb-10">
-                <!-- Praxis Sektion -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+                <!-- Praxis -->
                 <section>
-                    <div class="flex justify-between items-center mb-6 px-2">
-                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-sm">1</span>
-                            Praktischer Teil
-                        </h2>
-                        <span id="ui-sum-p" class="bg-sky-500/10 text-sky-400 px-4 py-1 rounded-full text-xs font-bold border border-sky-500/20 shadow-inner">0 / 20</span>
+                    <div class="flex justify-between items-center mb-4 px-2">
+                        <h2 class="text-lg font-bold text-white uppercase tracking-tighter">Teil 1: Praktisch</h2>
+                        <span id="ui-sum-p" class="bg-sky-500/10 text-sky-400 px-3 py-1 rounded-full text-xs font-bold border border-sky-500/20">0 / 20</span>
                     </div>
-                    <div id="ui-p" class="space-y-4"></div>
+                    <div id="ui-p" class="space-y-3"></div>
                 </section>
-                <!-- Gespräch Sektion -->
+                <!-- Gespräch -->
                 <section>
-                    <div class="flex justify-between items-center mb-6 px-2">
-                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm">2</span>
-                            Prüfungsgespräch
-                        </h2>
-                        <span id="ui-sum-o" class="bg-amber-500/10 text-amber-400 px-4 py-1 rounded-full text-xs font-bold border border-amber-500/20 shadow-inner">0 / 20</span>
+                    <div class="flex justify-between items-center mb-4 px-2">
+                        <h2 class="text-lg font-bold text-white uppercase tracking-tighter">Teil 2: Gespräch</h2>
+                        <span id="ui-sum-o" class="bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/20">0 / 20</span>
                     </div>
-                    <div id="ui-o" class="space-y-4"></div>
+                    <div id="ui-o" class="space-y-3"></div>
                 </section>
             </div>
 
-            <!-- Notizen Bereich -->
-            <section class="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 mb-10 shadow-2xl">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-slate-300 flex items-center gap-3">
-                        <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        Verlaufsprotokoll (Anlage 6)
-                    </h2>
-                    <button onclick="autoFillNotes()" class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30 px-4 py-2 rounded-full hover:bg-sky-500/20 transition-all font-bold">✨ Kompetenzbeschreibungen laden</button>
+            <!-- Notizen -->
+            <section class="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-slate-300">Gesprächsverlauf (Anlage 6)</h2>
+                    <button onclick="autoFillNotes()" class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30 px-3 py-1.5 rounded-full hover:bg-sky-500/20 transition-all font-bold uppercase tracking-widest">Kompetenztexte laden</button>
                 </div>
-                <textarea id="notizen" oninput="updateData()" class="w-full h-56 bg-slate-950/50 border border-slate-800 p-5 rounded-2xl text-sm leading-relaxed outline-none resize-none font-mono focus:border-sky-500 transition text-slate-300" placeholder="Stichworte zum Verlauf des Prüfungsgesprächs..."></textarea>
+                <textarea id="notizen" oninput="updateData()" class="w-full h-48 bg-slate-950 border border-slate-800 p-4 rounded-2xl text-sm leading-relaxed outline-none resize-none font-mono focus:border-sky-500 transition text-slate-300" placeholder="Stichworte zum Gespräch..."></textarea>
             </section>
 
             <!-- Scoreboard -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700 p-10 rounded-[3rem] flex justify-around items-center shadow-2xl relative overflow-hidden">
-                <div class="absolute inset-0 bg-sky-500/5 blur-3xl rounded-full translate-y-1/2"></div>
-                <div class="text-center z-10">
-                    <p class="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em] mb-3">Gesamt</p>
-                    <p id="sum-total" class="text-8xl font-black text-white tracking-tighter">0</p>
+            <div class="bg-slate-900 border border-slate-800 p-8 rounded-[2.5rem] flex justify-around items-center shadow-inner">
+                <div class="text-center">
+                    <p class="text-[10px] text-slate-600 uppercase font-black tracking-widest mb-1">Summe</p>
+                    <p id="sum-total" class="text-7xl font-black text-white">0</p>
                 </div>
-                <div class="h-24 w-px bg-slate-800 z-10"></div>
-                <div class="text-center z-10">
-                    <p class="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em] mb-3">Note</p>
-                    <p id="final-grade" class="text-8xl font-black text-sky-400 tracking-tighter">-</p>
+                <div class="h-16 w-px bg-slate-800"></div>
+                <div class="text-center">
+                    <p class="text-[10px] text-slate-600 uppercase font-black tracking-widest mb-1">Note</p>
+                    <p id="final-grade" class="text-7xl font-black text-sky-400">-</p>
                 </div>
             </div>
         </main>
@@ -246,75 +242,86 @@
     <div id="print-container">
         <!-- ANLAGE 6 - SEITE 1 -->
         <div class="page">
-            <div class="header-box">
+            <div class="official-title-box">
                 <div class="official-title">Realschulabschlussprüfung im Fach Technik</div>
                 <div class="official-subtitle">Niederschrift über die praktische Prüfung</div>
             </div>
             
-            <div class="form-field"><span class="field-label">Name:</span><span class="field-value" id="p6-name"></span><span class="field-label" style="margin-left:30pt">Klasse:</span><span class="field-value" style="flex-grow:0; min-width:80pt" id="p6-klasse"></span></div>
-            <div class="form-field"><span class="field-label">Thema:</span><span class="field-value" id="p6-thema"></span></div>
-            <div class="form-field"><span class="field-label">Schuljahr:</span><span class="field-value" style="flex-grow:0; min-width:120pt">2025/2026</span></div>
+            <div class="form-section">
+                <div class="form-line-item"><span class="form-label-bold">Name:</span><span class="form-underline" id="p6-name"></span></div>
+                <div class="form-line-item"><span class="form-label-bold">Thema:</span><span class="form-underline" id="p6-thema"></span></div>
+                <div style="display:flex; gap: 30pt;">
+                    <div class="form-line-item" style="width: 40%;"><span class="form-label-bold">Klasse:</span><span class="form-underline" id="p6-klasse"></span></div>
+                    <div class="form-line-item" style="width: 40%;"><span class="form-label-bold">Schuljahr:</span><span class="form-underline">2025/2026</span></div>
+                </div>
+            </div>
             
-            <h3 style="margin-top:25pt; font-size: 13pt;">Teil 1: Praktischer Teil:</h3>
-            <table class="table-official">
-                <thead>
-                    <tr>
-                        <th style="text-align: left; width: 50%;">Bewertungskriterien</th>
-                        <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-                        <th style="width: 40pt;">Pkt.</th>
+            <h3 style="margin-top:30pt; font-size: 13pt;">Teil 1: Praktischer Teil:</h3>
+            <div class="table-container">
+                <table class="official-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; width: 60%;">Bewertungskriterien</th>
+                            <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                            <th style="width: 40pt;">Pkt.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="p6-t1"></tbody>
+                    <tr style="background:#f2f2f2">
+                        <td colspan="7" style="text-align:right; font-weight:bold; padding: 8pt;">Summe Punkte praktischer Teil:</td>
+                        <td id="p6-sum-p" style="text-align:center; font-weight:bold; font-size: 13pt;"></td>
                     </tr>
-                </thead>
-                <tbody id="p6-t1"></tbody>
-                <tr style="background:#f0f0f0">
-                    <td colspan="7" style="text-align:right; font-weight:bold; padding: 10pt;">Summe Punkte praktischer Teil:</td>
-                    <td id="p6-sum-p" style="text-align:center; font-weight:bold; font-size: 13pt;"></td>
-                </tr>
-            </table>
+                </table>
+            </div>
             
-            <div class="page-footer">Anlage 6 - Seite 1 von 2</div>
+            <div class="page-marker">Anlage 6 - Seite 1 von 2</div>
         </div>
 
         <!-- ANLAGE 6 - SEITE 2 -->
         <div class="page">
-            <div class="header-box">
+            <div class="official-title-box">
                 <div class="official-title">Realschulabschlussprüfung im Fach Technik</div>
                 <div class="official-subtitle">Niederschrift über die praktische Prüfung</div>
             </div>
             
-            <h3 style="margin-top:5pt; font-size: 12pt;">Teil 2: Prüfungsgespräch: <span style="font-weight:normal; font-style:italic; font-size: 10pt;">(Stichworte zum Verlauf des Gesprächs)</span></h3>
-            <div class="notes-box-official" id="p6-notizen"></div>
+            <h3 style="margin-top:10pt; font-size: 11pt;">Teil 2: Prüfungsgespräch: <span style="font-weight:normal; font-style:italic; font-size: 10pt;">(Stichworte zum Verlauf des Gesprächs)</span></h3>
+            <div class="notes-textarea-print" id="p6-notizen"></div>
             
-            <div class="form-field" style="margin-top:15pt">
-                <span class="field-label">Datum:</span><span class="field-value" id="p6-datum" style="min-width: 100pt"></span>
-                <span class="field-label" style="margin-left:30pt">Beginn:</span><span class="field-value" id="p6-beginn" style="flex-grow:0; min-width:60pt"></span>
-                <span class="field-label" style="margin-left:15pt">Ende:</span><span class="field-value" id="p6-ende" style="flex-grow:0; min-width:60pt"></span>
+            <div class="form-section" style="margin-top:20pt">
+                <div style="display:flex; gap: 15pt;">
+                    <div class="form-line-item" style="width: 35%;"><span class="form-label-bold">Datum:</span><span class="form-underline" id="p6-datum"></span></div>
+                    <div class="form-line-item" style="width: 25%;"><span class="form-label-bold">Beginn:</span><span class="form-underline" id="p6-beginn"></span></div>
+                    <div class="form-line-item" style="width: 25%;"><span class="form-label-bold">Ende:</span><span class="form-underline" id="p6-ende"></span></div>
+                </div>
             </div>
             
-            <table class="table-official" style="margin-top: 15pt;">
-                <thead>
-                    <tr>
-                        <th style="text-align: left;">Bewertungskriterien Gespräch</th>
-                        <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-                        <th style="width: 40pt;">Pkt.</th>
+            <div class="table-container" style="margin-top: 15pt;">
+                <table class="official-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Bewertungskriterien Gespräch</th>
+                            <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                            <th style="width: 40pt;">Pkt.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="p6-t2"></tbody>
+                    <tr style="background:#f2f2f2">
+                        <td colspan="7" style="text-align:right; font-weight:bold; padding: 8pt;">Summe Punkte Prüfungsgespräch:</td>
+                        <td id="p6-sum-o" style="text-align:center; font-weight:bold; font-size: 13pt;"></td>
                     </tr>
-                </thead>
-                <tbody id="p6-t2"></tbody>
-                <tr style="background:#f0f0f0">
-                    <td colspan="7" style="text-align:right; font-weight:bold; padding: 10pt;">Summe Punkte Prüfungsgespräch:</td>
-                    <td id="p6-sum-o" style="text-align:center; font-weight:bold; font-size: 13pt;"></td>
-                </tr>
-            </table>
+                </table>
+            </div>
 
-            <div class="result-official">
-                <span>Erreichte Punktzahl (max. 40): <span id="p6-total" style="text-decoration:underline; font-size: 18pt; margin-left: 15pt;"></span></span>
-                <span>Note: <span id="p6-grade" style="text-decoration:underline; font-size: 18pt; margin-left: 15pt;"></span></span>
+            <div class="summary-total-box">
+                <div style="font-size: 13pt;">Erreichte Punktzahl (max. 40): <span id="p6-total" style="text-decoration:underline; font-size: 18pt; margin-left: 10pt;"></span></div>
+                <div style="font-size: 16pt;">Note: <span id="p6-grade" style="text-decoration:underline; font-size: 22pt; margin-left: 10pt;"></span></div>
             </div>
             
-            <div class="footer-sigs">
-                <div class="sig-placeholder">Fachlehrkraft der Klasse als Prüfer/in</div>
-                <div class="sig-placeholder">Vorsitzende/r / Zweitprüfer/in</div>
+            <div class="sig-row">
+                <div class="sig-field">Fachlehrkraft der Klasse als Prüfer/in</div>
+                <div class="sig-field">Vorsitzende/r / Zweitprüfer/in</div>
             </div>
-            <div class="page-footer">Anlage 6 - Seite 2 von 2</div>
+            <div class="page-marker">Anlage 6 - Seite 2 von 2</div>
         </div>
 
         <!-- ANLAGE 5 PAGES (DYNAMICALLY GENERATED) -->
@@ -348,7 +355,7 @@
                 const container = document.getElementById(c.section === 'Praktisch' ? 'ui-p' : 'ui-o');
                 if (!container) return;
                 const div = document.createElement('div');
-                div.className = "p-4 bg-slate-900/40 rounded-2xl border border-slate-700/50 hover:border-slate-600 transition group";
+                div.className = "p-4 bg-slate-900/40 rounded-2xl border border-slate-700/50 hover:border-slate-600 transition group shadow-sm";
                 div.innerHTML = `
                     <p class="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-tighter group-hover:text-slate-400 transition">${c.name}</p>
                     <div class="flex justify-between items-center gap-1 mb-3">
@@ -359,7 +366,7 @@
                             </div>
                         `).join('')}
                     </div>
-                    <div id="desc-${c.id}" class="text-[10px] text-slate-500 italic min-h-[2.5em] leading-snug">Warte auf Punktevergabe...</div>
+                    <div id="desc-${c.id}" class="text-[10px] text-slate-500 italic min-h-[2.5em] leading-snug">Bewertung auswählen...</div>
                 `;
                 container.appendChild(div);
             });
@@ -376,68 +383,57 @@
                     if(c.section === 'Praktisch') pSum += v; else oSum += v;
                     if (dDiv) {
                         dDiv.innerText = c.descs[v]; 
-                        dDiv.classList.remove('text-slate-500');
-                        dDiv.classList.add('text-sky-400');
+                        dDiv.classList.remove('text-slate-500'); dDiv.classList.add('text-sky-400');
                     }
                 } else {
                     if (dDiv) {
-                        dDiv.innerText = "Warte auf Punktevergabe...";
-                        dDiv.classList.add('text-slate-500');
-                        dDiv.classList.remove('text-sky-400');
+                        dDiv.innerText = "Bewertung auswählen...";
+                        dDiv.classList.add('text-slate-500'); dDiv.classList.remove('text-sky-400');
                     }
                 }
             });
 
-            const uiSumP = document.getElementById('ui-sum-p');
-            if (uiSumP) uiSumP.innerText = `${pSum} / 20`;
-            const uiSumO = document.getElementById('ui-sum-o');
-            if (uiSumO) uiSumO.innerText = `${oSum} / 20`;
+            if (document.getElementById('ui-sum-p')) document.getElementById('ui-sum-p').innerText = `${pSum} / 20`;
+            if (document.getElementById('ui-sum-o')) document.getElementById('ui-sum-o').innerText = `${oSum} / 20`;
 
             const total = pSum + oSum;
             const grade = getGrade(total);
 
-            const sumTotal = document.getElementById('sum-total');
-            if (sumTotal) sumTotal.innerText = total;
-            const finalGrade = document.getElementById('final-grade');
-            if (finalGrade) finalGrade.innerText = grade;
+            if (document.getElementById('sum-total')) document.getElementById('sum-total').innerText = total;
+            if (document.getElementById('final-grade')) document.getElementById('final-grade').innerText = grade;
 
             if(currentIndex !== -1) saveStudent();
             renderPrint(pSum, oSum, total, grade);
         }
 
         function renderPrint(p, o, total, grade) {
-            const getVal = (id) => document.getElementById(id)?.value || "";
-            const vals = { 
-                name: getVal('name'), klasse: getVal('klasse'), thema: getVal('thema'), 
-                datum: getVal('datum'), start: getVal('beginn'), end: getVal('ende'), notes: getVal('notizen') 
-            };
+            const gV = (id) => document.getElementById(id)?.value || "";
+            const vals = { name: gV('name'), klasse: gV('klasse'), thema: gV('thema'), datum: gV('datum'), start: gV('beginn'), end: gV('ende'), notes: gV('notizen') };
             
-            const setPrint = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+            const sP = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
 
-            setPrint('p6-name', vals.name); setPrint('p6-klasse', vals.klasse); setPrint('p6-thema', vals.thema);
-            setPrint('p6-datum', vals.datum); setPrint('p6-beginn', vals.start); setPrint('p6-ende', vals.end);
-            setPrint('p6-notizen', vals.notes); setPrint('p6-sum-p', p); setPrint('p6-sum-o', o);
-            setPrint('p6-total', total); setPrint('p6-grade', grade);
+            sP('p6-name', vals.name); sP('p6-klasse', vals.klasse); sP('p6-thema', vals.thema);
+            sP('p6-datum', vals.datum); sP('p6-beginn', vals.start); sP('p6-ende', vals.end);
+            sP('p6-notizen', vals.notes); sP('p6-sum-p', p); sP('p6-sum-o', o);
+            sP('p6-total', total); sP('p6-grade', grade);
 
-            const makeRows = (list, targetId) => {
-                const target = document.getElementById(targetId);
-                if (!target) return;
+            const mR = (list, targetId) => {
+                const t = document.getElementById(targetId); if (!t) return;
                 let h = "";
                 list.forEach(c => {
                     const v = document.querySelector(`input[name="${c.id}"]:checked`)?.value;
                     h += `<tr><td style="font-size: 10.5pt; font-weight: bold;">${c.name}</td>${[0,1,2,3,4,5].map(i => `<td style="text-align:center">${v==i?'<b>X</b>':''}</td>`).join('')}<td style="text-align:center;font-weight:bold; background: #f9f9f9">${v||'0'}</td></tr>`;
                 });
-                target.innerHTML = h;
+                t.innerHTML = h;
             };
-            makeRows(CAT_DATA.filter(x=>x.section==='Praktisch'), 'p6-t1');
-            makeRows(CAT_DATA.filter(x=>x.section==='Gespräch'), 'p6-t2');
+            mR(CAT_DATA.filter(x=>x.section==='Praktisch'), 'p6-t1');
+            mR(CAT_DATA.filter(x=>x.section==='Gespräch'), 'p6-t2');
 
             renderAnlage5(vals, p, o, total, grade);
         }
 
         function renderAnlage5(vals, pSum, oSum, total, grade) {
-            const container = document.getElementById('p5-dynamic-pages');
-            if (!container) return;
+            const container = document.getElementById('p5-dynamic-pages'); if (!container) return;
             let html = "";
             const chunks = [
                 { title: "Teil 1: Praktischer Teil", items: [CAT_DATA[0], CAT_DATA[1]], page: 1 },
@@ -450,77 +446,83 @@
             chunks.forEach(chunk => {
                 html += `
                 <div class="page">
-                    <div style="font-size: 10pt; text-align: left; margin-bottom: 20pt;">Baden-Württemberg | Ministerium für Kultus, Jugend und Sport</div>
-                    <h1 class="h1-off">Realschulabschlussprüfung</h1>
-                    <h2 class="h2-off">Kriterienkatalog für die praktische Prüfung im Fach Technik</h2>
+                    <div class="official-header-small">Baden-Württemberg | Ministerium für Kultus, Jugend und Sport</div>
+                    <h1 class="h1-off" style="font-size: 14pt; font-weight: bold; text-align: center;">Realschulabschlussprüfung</h1>
+                    <h2 class="h2-off" style="font-size: 15pt; font-weight: bold; text-align: center; margin-bottom: 20pt; text-decoration: underline;">Kriterienkatalog für die praktische Prüfung im Fach Technik</h2>
                     
-                    <div class="form-row"><span class="form-label">Schuljahr:</span><span class="form-value">2025/2026</span></div>
-                    <div class="form-row"><span class="form-label">Name:</span><span class="form-value">${vals.name}</span><span class="form-label" style="margin-left:20pt">Klasse:</span><span class="form-value" style="flex-grow:0; min-width:60pt">${vals.klasse}</span></div>
-                    <div class="form-row"><span class="form-label">Datum:</span><span class="form-value" style="flex-grow:0; min-width:100pt">${vals.datum}</span></div>
-                    <div class="form-row"><span class="form-label">Thema:</span><span class="form-value">${vals.thema}</span></div>
+                    <div class="form-section">
+                        <div class="form-line-item" style="margin-bottom: 6pt;"><span class="form-label-bold">Schuljahr:</span><span class="form-underline">2025/2026</span></div>
+                        <div class="form-line-item" style="margin-bottom: 6pt;"><span class="form-label-bold">Name:</span><span class="form-underline">${vals.name}</span><span class="form-label-bold" style="margin-left:20pt">Klasse:</span><span class="form-underline" style="flex-grow:0; min-width:60pt">${vals.klasse}</span></div>
+                        <div class="form-line-item" style="margin-bottom: 6pt;"><span class="form-label-bold">Datum:</span><span class="form-underline" style="flex-grow:0; min-width:100pt">${vals.datum}</span></div>
+                        <div class="form-line-item" style="margin-bottom: 15pt;"><span class="form-label-bold">Thema:</span><span class="form-underline">${vals.thema}</span></div>
+                    </div>
                     
-                    <h3 style="margin: 20pt 0 10pt 0; border-bottom: 2pt solid black; padding-bottom: 3pt;">${chunk.title}</h3>
+                    <h3 style="margin: 15pt 0 10pt 0; border-bottom: 1.5pt solid black; padding-bottom: 3pt; font-size: 12pt;">${chunk.title}</h3>
                     
                     ${chunk.items.map(item => {
                         const val = document.querySelector(`input[name="${item.id}"]:checked`)?.value;
                         return `
-                        <div style="margin-bottom: 15pt">
-                            <p style="font-weight:bold; font-size:11pt; margin-bottom:6pt; text-decoration: underline;">${item.name}</p>
+                        <div style="margin-bottom: 12pt">
+                            <p style="font-weight:bold; font-size:10.5pt; margin-bottom:5pt; text-decoration: underline;">"${item.name}"</p>
                             ${item.descs.slice().reverse().map((d, i) => {
                                 const score = 5 - i;
                                 return `
-                                <div class="score-box ${val == score ? 'score-marked' : ''}">
-                                    <div class="score-text">${d}</div>
-                                    <div class="score-num">${score}</div>
+                                <div class="crit-block ${val == score ? 'crit-selected' : ''}">
+                                    <div class="crit-desc">${d}</div>
+                                    <div class="crit-pts">${score}</div>
                                 </div>`;
                             }).join('')}
                         </div>`;
                     }).join('')}
 
-                    <div class="page-footer">Anlage 5 - Seite ${chunk.page} von 6</div>
+                    <div class="page-marker">Anlage 5 - Seite ${chunk.page} von 6</div>
                 </div>`;
             });
 
             // Seite 6: Skala & Signaturen
             html += `
             <div class="page">
-                <div style="font-size: 10pt; text-align: left; margin-bottom: 20pt;">Baden-Württemberg | Ministerium für Kultus, Jugend und Sport</div>
-                <h1 class="h1-off">Realschulabschlussprüfung</h1>
-                <h2 class="h2-off">Gesamtsumme Punkte - Note</h2>
+                <div class="official-header-small">Baden-Württemberg | Ministerium für Kultus, Jugend und Sport</div>
+                <h1 class="h1-off" style="font-size: 14pt; font-weight: bold; text-align: center;">Realschulabschlussprüfung</h1>
+                <h2 class="h2-off" style="font-size: 15pt; font-weight: bold; text-align: center; margin-bottom: 30pt; text-decoration: underline;">Gesamtsumme Punkte - Note</h2>
                 
-                <table class="table-official" style="margin-top: 30pt;">
-                    <thead>
-                        <tr><th style="text-align: left;">Bereich</th><th>Max.</th><th>Erreichte Punkte</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Praktischer Teil</td><td style="text-align:center">20</td><td style="text-align:center; font-weight:bold">${pSum}</td></tr>
-                        <tr><td>Prüfungsgespräch</td><td style="text-align:center">20</td><td style="text-align:center; font-weight:bold">${oSum}</td></tr>
-                        <tr style="background:#eee; font-size:14pt"><td><b>Gesamtpunktzahl</b></td><td style="text-align:center"><b>40</b></td><td style="text-align:center; font-weight:bold">${total}</td></tr>
-                    </tbody>
-                </table>
-
-                <div style="margin: 50pt auto; text-align:center; width: 80%; border: 3pt solid black; padding: 25pt; font-family: sans-serif;">
-                    <span style="font-size: 20pt; font-weight: bold;">Gesamtnote: <span style="font-size: 45pt; text-decoration: underline; margin-left: 20pt;">${grade}</span></span>
-                </div>
-
-                <div style="margin-top: 40pt;">
-                    <h3 style="text-decoration: underline; text-align:center; margin-bottom: 10pt;">Offizieller Bewertungsschlüssel Technik BW</h3>
-                    <table class="scale-table">
-                        <tr><th>Punkte</th><th>Note</th><th>Punkte</th><th>Note</th></tr>
-                        <tr><td>40,0</td><td>1,0</td><td>24,0 - 24,5</td><td>3,0</td></tr>
-                        <tr><td>38,5 - 39,5</td><td>1,2</td><td>20,0 - 20,5</td><td>3,5</td></tr>
-                        <tr><td>36,0 - 37,0</td><td>1,5</td><td>16,0 - 16,5</td><td>4,0</td></tr>
-                        <tr><td>32,0 - 33,0</td><td>2,0</td><td>8,0 - 8,5</td><td>5,0</td></tr>
-                        <tr><td>28,0 - 29,0</td><td>2,5</td><td>0,0 - 0,5</td><td>6,0</td></tr>
+                <div class="table-container" style="width: 90%; margin: 0 auto;">
+                    <table class="official-table">
+                        <thead>
+                            <tr><th style="text-align: left; padding: 10pt;">Prüfungsbereich</th><th style="width: 80pt;">Max.</th><th style="width: 100pt;">Punkte</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 10pt;">Teil 1: Praktischer Teil</td><td style="text-align:center">20</td><td style="text-align:center; font-weight:bold; font-size: 14pt;">${pSum}</td></tr>
+                            <tr><td style="padding: 10pt;">Teil 2: Prüfungsgespräch</td><td style="text-align:center">20</td><td style="text-align:center; font-weight:bold; font-size: 14pt;">${oSum}</td></tr>
+                            <tr style="background:#eee; font-size:15pt"><td><b>Gesamtpunktzahl</b></td><td style="text-align:center"><b>40</b></td><td style="text-align:center; font-weight:bold; font-size: 20pt;">${total}</td></tr>
+                        </tbody>
                     </table>
                 </div>
 
-                <div class="footer-sigs">
-                    <div class="sig-placeholder">Fachlehrkraft (Prüfer/in)</div>
-                    <div class="sig-placeholder">Vorsitzende/r / Zweitprüfer/in</div>
+                <div style="margin: 40pt auto; text-align:center; width: 70%; border: 3pt solid black; padding: 20pt; background: #fdfdfd;">
+                    <span style="font-size: 18pt; font-weight: bold;">Note: <span style="font-size: 40pt; text-decoration: underline; margin-left: 20pt;">${grade}</span></span>
                 </div>
 
-                <div class="page-footer">Anlage 5 - Seite 6 von 6</div>
+                <div style="margin-top: 30pt;">
+                    <h3 style="text-decoration: underline; text-align:center; margin-bottom: 10pt; font-size: 11pt;">Offizieller Bewertungsschlüssel Technik BW</h3>
+                    <table class="key-table">
+                        <thead><tr><th>Punkte</th><th>Note</th><th>Punkte</th><th>Note</th></tr></thead>
+                        <tbody>
+                            <tr><td>40,0</td><td>1,0</td><td>24,0 - 24,5</td><td>3,0</td></tr>
+                            <tr><td>38,5 - 39,5</td><td>1,2</td><td>20,0 - 20,5</td><td>3,5</td></tr>
+                            <tr><td>36,0 - 37,0</td><td>1,5</td><td>16,0 - 16,5</td><td>4,0</td></tr>
+                            <tr><td>32,0 - 33,0</td><td>2,0</td><td>8,0 - 8,5</td><td>5,0</td></tr>
+                            <tr><td>28,0 - 29,0</td><td>2,5</td><td>0,0 - 0,5</td><td>6,0</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="sig-row">
+                    <div class="sig-field">Fachlehrkraft (Prüfer/in)</div>
+                    <div class="sig-field">Vorsitzende/r / Zweitprüfer/in</div>
+                </div>
+
+                <div class="page-marker">Anlage 5 - Seite 6 von 6</div>
             </div>`;
 
             container.innerHTML = html;
@@ -532,39 +534,30 @@
                 const v = document.querySelector(`input[name="${c.id}"]:checked`)?.value;
                 if(v) n += `• ${c.name} (${v} Pkt): ${c.descs[v]}\n`;
             });
-            const notizenEl = document.getElementById('notizen');
-            if (notizenEl) { notizenEl.value = n; updateData(); }
+            if (document.getElementById('notizen')) { document.getElementById('notizen').value = n; updateData(); }
         }
 
         function saveStudent() {
             if (currentIndex === -1) return;
-            const pts = {}; 
-            CAT_DATA.forEach(c => { pts[c.id] = document.querySelector(`input[name="${c.id}"]:checked`)?.value || null; });
-            const getVal = (id) => document.getElementById(id)?.value || "";
-            students[currentIndex] = { 
-                name: getVal('name'), klasse: getVal('klasse'), thema: getVal('thema'), 
-                datum: getVal('datum'), start: getVal('beginn'), end: getVal('ende'), 
-                notes: getVal('notizen'), points: pts 
-            };
+            const pts = {}; CAT_DATA.forEach(c => { pts[c.id] = document.querySelector(`input[name="${c.id}"]:checked`)?.value || null; });
+            const gV = (id) => document.getElementById(id)?.value || "";
+            students[currentIndex] = { name: gV('name'), klasse: gV('klasse'), thema: gV('thema'), datum: gV('datum'), start: gV('beginn'), end: gV('ende'), notes: gV('notizen'), points: pts };
             updateSidebar();
         }
 
         function loadStudent(idx) {
             const s = students[idx]; if (!s) return;
             currentIndex = idx; 
-            const setVal = (id, v) => { const el = document.getElementById(id); if(el) el.value = v || ""; };
-            setVal('name', s.name); setVal('klasse', s.klasse); setVal('thema', s.thema);
-            setVal('datum', s.datum || new Date().toISOString().split('T')[0]);
-            setVal('beginn', s.start); setVal('ende', s.end); setVal('notizen', s.notes);
+            const sV = (id, v) => { if(document.getElementById(id)) document.getElementById(id).value = v || ""; };
+            sV('name', s.name); sV('klasse', s.klasse); sV('thema', s.thema);
+            sV('datum', s.datum || new Date().toISOString().split('T')[0]);
+            sV('beginn', s.start); sV('ende', s.end); sV('notizen', s.notes);
             CAT_DATA.forEach(c => {
                 document.querySelectorAll(`input[name="${c.id}"]`).forEach(r => r.checked = false);
                 const v = s.points[c.id];
-                if(v !== null && v !== undefined) { 
-                    const rb = document.getElementById(`${c.id}_${v}`); if(rb) rb.checked = true; 
-                }
+                if(v !== null && v !== undefined) { const rb = document.getElementById(`${c.id}_${v}`); if(rb) rb.checked = true; }
             });
-            updateData(); 
-            updateSidebar();
+            updateData(); updateSidebar();
         }
 
         function updateSidebar() {
@@ -572,33 +565,29 @@
             l.innerHTML = "";
             students.forEach((s, idx) => {
                 const b = document.createElement('button');
-                b.className = `w-full text-left p-4 rounded-2xl text-sm transition-all mb-2 flex flex-col gap-1 shadow-sm border ${currentIndex===idx?'bg-sky-600 text-white border-sky-400 ring-2 ring-sky-500/50':'bg-slate-800/40 text-slate-400 border-slate-700/50 hover:bg-slate-800 hover:text-slate-300'}`;
+                b.className = `w-full text-left p-4 rounded-2xl text-sm transition-all mb-2 border ${currentIndex===idx?'bg-sky-600 text-white border-sky-400 shadow-md':'bg-slate-800/40 text-slate-400 border-slate-700/50 hover:bg-slate-800 hover:text-slate-300'}`;
                 const done = Object.values(s.points).filter(v => v !== null).length >= 8;
-                b.innerHTML = `<div class="flex justify-between items-center"><span class="font-bold truncate w-40">${s.name || "Unbenannt"}</span>${done?'<span class="text-[9px] bg-green-500 text-white px-2 py-0.5 rounded-full">OK</span>':''}</div><span class="text-[10px] opacity-70">${s.klasse || "-"} | ${s.thema ? s.thema.substring(0,25)+'...' : 'Thema?'}</span>`;
+                b.innerHTML = `<div class="flex justify-between items-center"><span class="font-bold truncate w-40">${s.name || "Unbenannt"}</span>${done?'<span class="text-[8px] bg-green-500 text-white px-2 py-0.5 rounded-full">OK</span>':''}</div><span class="text-[10px] opacity-70">${s.klasse || "-"} | ${s.thema ? s.thema.substring(0,25)+'...' : 'Thema?'}</span>`;
                 b.onclick = () => loadStudent(idx);
                 l.appendChild(b);
             });
-            document.getElementById('listInfo').innerText = `${students.length} geladen`;
+            document.getElementById('listInfo').innerText = `${students.length} Schüler`;
         }
 
         document.getElementById('csvInput').addEventListener('change', e => {
             if (!e.target.files[0]) return;
-            Papa.parse(e.target.files[0], { 
-                header: true, delimiter: ";", skipEmptyLines: true, 
-                complete: r => {
-                    students = r.data.map(row => {
-                        let n = row.Name || ""; 
-                        if(n.includes(',')) { const p = n.split(',').map(s=>s.trim()); n = `${p[1]} ${p[0]}`; }
-                        return { name: n, klasse: row.Klasse || "", thema: "", datum: "", start: "", end: "", notes: "", points: {} };
-                    });
-                    if(students.length > 0) loadStudent(0);
-                }
-            });
+            Papa.parse(e.target.files[0], { header: true, delimiter: ";", skipEmptyLines: true, complete: r => {
+                students = r.data.map(row => {
+                    let n = row.Name || ""; if(n.includes(',')) { const p = n.split(',').map(s=>s.trim()); n = `${p[1]} ${p[0]}`; }
+                    return { name: n, klasse: row.Klasse || "", thema: "", datum: "", start: "", end: "", notes: "", points: {} };
+                });
+                if(students.length > 0) loadStudent(0);
+            }});
         });
 
         function exportBackup() {
             const b = new Blob([JSON.stringify({students}, null, 2)], {type:'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `Backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `Backup_Technik_${new Date().toISOString().split('T')[0]}.json`; a.click();
         }
 
         window.onload = () => { initUI(); updateData(); };
