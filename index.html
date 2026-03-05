@@ -1,786 +1,461 @@
-<!DOCTYPE html>
-<html lang="de" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relution User & Device Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f1f5f9;
-        }
-        .custom-dropzone {
-            border: 2px dashed #334155;
-            transition: all 0.3s ease;
-        }
-        .custom-dropzone.drag-over {
-            border-color: #3b82f6;
-            background-color: #1e293b;
-        }
-        .btn-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
-        }
-        
-        .resizable-th {
-            position: relative;
-            min-width: 80px;
-            border-right: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        .resizer {
-            position: absolute;
-            right: 0;
-            top: 0;
-            height: 100%;
-            width: 6px;
-            cursor: col-resize;
-            user-select: none;
-            transition: background-color 0.2s;
-            z-index: 10;
-        }
-        .resizer:hover, .resizer.resizing {
-            background-color: #3b82f6;
-        }
-        
-        table {
-            table-layout: fixed;
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
+import React, { useState, useEffect, useRef } from 'react';
 
-        th, td {
-            border-right: 1px solid rgba(59, 130, 246, 0.2);
-            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
-        }
-        
-        th:last-child, td:last-child {
-            border-right: none;
-        }
+// Konstanten für die Bewertungskriterien
+const CAT_DATA = [
+  { id: "p1", section: "Praktisch", name: "Planung" },
+  { id: "p2", section: "Praktisch", name: "Funktion" },
+  { id: "p3", section: "Praktisch", name: "Umsetzung" },
+  { id: "p4", section: "Praktisch", name: "Steuerung" },
+  { id: "o1", section: "Gespräch", name: "Realisierung" },
+  { id: "o2", section: "Gespräch", name: "Fachlichkeit" },
+  { id: "o3", section: "Gespräch", name: "Verhalten" },
+  { id: "o4", section: "Gespräch", name: "Reflexion" }
+];
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+const DESCRIPTIONS = {
+  p1: ["Keine Planungsunterlagen.", "Mangelhafte Unterlagen.", "Teilweise fehlerhaft.", "Teilweise sauber.", "Weitgehend vollständig.", "Vollständig und sauber."],
+  p2: ["Nicht erfüllt.", "Mangelhaft.", "Teilweise erfüllt.", "Zufriedenstellend.", "Weitgehend erfüllt.", "Vollständig erfüllt."],
+  p3: ["Keine Umsetzung.", "Mangelhaft.", "Unzureichend.", "Teilweise sauber.", "Weitgehend präzise.", "Herausragend."],
+  p4: ["Keine Steuerung.", "Fehlerhaft.", "Grundzüge lauffähig.", "Einfach umgesetzt.", "Weitgehend fehlerfrei.", "Komplex und strukturiert."],
+  o1: ["Keine Erklärung.", "Mangelhaft.", "Nur auf Nachfrage.", "In Grundzügen.", "Weitgehend sicher.", "Präzise und fundiert."],
+  o2: ["Kein Fachwissen.", "Lückenhaftes Grundwissen.", "Lückenhaftes Fachwissen.", "Grundlegend.", "Sicher.", "Hervorragend."],
+  o3: ["Verweigert Gespräch.", "Mangelhaft.", "Einsilbig.", "Einfache Fachsprache.", "Sicher.", "Souverän."],
+  o4: ["Keine Reflexion.", "Mangelhaft.", "Teilweise begründet.", "In Ansätzen.", "Gute Reflexion.", "Kritisch und fundiert."]
+};
 
-        /* Optimiertes Druck-Layout */
+// Hilfsfunktion zur Notenberechnung
+const getGrade = (p) => {
+  if (p >= 40.0) return "1,0";
+  if (p >= 39.0) return "1,1";
+  if (p >= 38.5) return "1,2";
+  if (p >= 37.5) return "1,3";
+  if (p >= 36.5) return "1,4";
+  if (p >= 36.0) return "1,5";
+  if (p >= 35.0) return "1,6";
+  if (p >= 34.5) return "1,7";
+  if (p >= 33.5) return "1,8";
+  if (p >= 32.5) return "1,9";
+  if (p >= 32.0) return "2,0";
+  if (p >= 31.0) return "2,1";
+  if (p >= 30.5) return "2,2";
+  if (p >= 29.5) return "2,3";
+  if (p >= 28.5) return "2,4";
+  if (p >= 28.0) return "2,5";
+  if (p >= 24.0) return "3,0";
+  if (p >= 20.0) return "3,5";
+  if (p >= 16.0) return "4,0";
+  if (p >= 8.0) return "5,0";
+  return "6,0";
+};
+
+// Einfacher interner CSV-Parser, um die Abhängigkeit von 'papaparse' zu vermeiden
+const parseCSV = (text) => {
+  const lines = text.split(/\r?\n/);
+  if (lines.length === 0) return [];
+  
+  const headers = lines[0].split(';').map(h => h.replace(/"/g, '').trim());
+  return lines.slice(1).filter(line => line.trim()).map(line => {
+    const values = line.split(';').map(v => v.replace(/"/g, '').trim());
+    const obj = {};
+    headers.forEach((header, i) => {
+      obj[header] = values[i] || "";
+    });
+    return obj;
+  });
+};
+
+export default function App() {
+  const [students, setStudents] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [templates, setTemplates] = useState([]);
+  const fileInputRef = useRef(null);
+
+  const currentStudent = currentIndex >= 0 ? students[currentIndex] : null;
+
+  const updateStudent = (field, value) => {
+    if (currentIndex < 0) return;
+    const newStudents = [...students];
+    newStudents[currentIndex] = { ...newStudents[currentIndex], [field]: value };
+    setStudents(newStudents);
+  };
+
+  const updateScore = (id, value) => {
+    if (currentIndex < 0) return;
+    const newStudents = [...students];
+    const newPoints = { ...newStudents[currentIndex].points, [id]: parseInt(value) };
+    newStudents[currentIndex] = { ...newStudents[currentIndex], points: newPoints };
+    setStudents(newStudents);
+  };
+
+  const handleCsvImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const data = parseCSV(text);
+      
+      const imported = data.map(row => ({
+        name: row.Name || row.name || "Unbenannt",
+        klasse: row.Klasse || row.klasse || "",
+        thema: "",
+        datum: new Date().toISOString().split('T')[0],
+        start: "",
+        ende: "",
+        notizen: "",
+        points: {}
+      }));
+      
+      setStudents(imported);
+      if (imported.length > 0) setCurrentIndex(0);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleTemplateUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const newTemplates = [];
+    let loaded = 0;
+
+    files.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        newTemplates[index] = event.target.result;
+        loaded++;
+        if (loaded === files.length) {
+          // Sortieren nach Dateiname oder Reihenfolge des Uploads
+          setTemplates(newTemplates);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const autoFillNotes = () => {
+    if (!currentStudent) return;
+    let n = "";
+    CAT_DATA.filter(x => x.section === 'Gespräch').forEach(c => {
+      const v = currentStudent.points[c.id];
+      if (v !== undefined && v !== null) {
+        n += `• ${c.name} (${v} Pkt): ${DESCRIPTIONS[c.id][v]}\n`;
+      }
+    });
+    updateStudent('notizen', n);
+  };
+
+  const exportBackup = () => {
+    const blob = new Blob([JSON.stringify({ students }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Technik_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+  };
+
+  const pSum = currentStudent ? [0, 1, 2, 3].reduce((acc, i) => acc + (currentStudent.points[CAT_DATA[i].id] || 0), 0) : 0;
+  const oSum = currentStudent ? [4, 5, 6, 7].reduce((acc, i) => acc + (currentStudent.points[CAT_DATA[i].id] || 0), 0) : 0;
+  const total = pSum + oSum;
+  const grade = getGrade(total);
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-200">
+      {/* Sidebar */}
+      <aside className="w-80 bg-slate-900 border-r border-slate-800 flex flex-col shadow-2xl no-print">
+        <div className="p-6 border-b border-slate-800">
+          <h2 className="font-bold text-sky-400 text-xl tracking-tight">Technik BW</h2>
+          <p className="text-[10px] text-slate-500 uppercase font-bold mt-1">PDF Overlay Edition</p>
+        </div>
+
+        <div className="flex-grow overflow-y-auto p-4 space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold text-slate-500">Templates (8 Bilder)</label>
+            <div 
+              onClick={() => fileInputRef.current.click()}
+              className="border-2 border-dashed border-slate-700 p-4 text-center rounded-xl cursor-pointer hover:border-sky-500 hover:bg-slate-800 transition-all"
+            >
+              <span className="text-xs text-slate-400">
+                {templates.length > 0 ? `${templates.length} von 8 bereit` : "Leere PDF-Seiten hochladen"}
+              </span>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                multiple 
+                accept="image/*" 
+                onChange={handleTemplateUpload} 
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold text-slate-500">Daten-Aktionen</label>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs font-bold border border-slate-700 text-center cursor-pointer">
+                📂 CSV
+                <input type="file" className="hidden" accept=".csv" onChange={handleCsvImport} />
+              </label>
+              <button onClick={exportBackup} className="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs font-bold border border-slate-700">
+                💾 Backup
+              </button>
+            </div>
+            <button 
+              onClick={() => window.print()} 
+              className="w-full bg-sky-600 hover:bg-sky-500 p-3 rounded-xl font-bold text-white shadow-lg transition-transform active:scale-95"
+            >
+              🖨️ Drucken (8 Seiten)
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold text-slate-500">Prüflinge</label>
+            <div className="space-y-1">
+              {students.length === 0 ? (
+                <p className="text-center text-slate-600 text-xs py-4 italic">Keine Liste geladen</p>
+              ) : (
+                students.map((s, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentIndex(idx)}
+                    className={`w-full text-left p-3 rounded-xl text-sm transition-all ${currentIndex === idx ? 'bg-sky-600 text-white shadow-md' : 'bg-slate-800/50 text-slate-400 hover:bg-slate-800'}`}
+                  >
+                    <div className="font-bold truncate">{s.name}</div>
+                    <div className="text-[10px] opacity-60">{s.klasse || "Klasse ?"}</div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main UI */}
+      <main className="flex-grow p-6 lg:p-10 overflow-y-auto no-print">
+        {currentStudent ? (
+          <div className="max-w-5xl mx-auto space-y-8">
+            <header className="flex justify-between items-end border-b border-slate-800 pb-6">
+              <div className="space-y-1">
+                <h1 className="text-3xl font-black text-white">{currentStudent.name}</h1>
+                <p className="text-sky-500 font-bold uppercase text-xs tracking-widest">Aktueller Prüfling</p>
+              </div>
+              <div className="text-right">
+                <p className="text-slate-500 text-[10px] uppercase font-bold tracking-widest">Endnote</p>
+                <p className="text-5xl font-black text-white">{grade}</p>
+              </div>
+            </header>
+
+            {/* Stammdaten Felder */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-1">Thema</label>
+                <input 
+                  type="text" 
+                  value={currentStudent.thema} 
+                  onChange={(e) => updateStudent('thema', e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-white outline-none focus:border-sky-500 transition-colors"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-1">Datum</label>
+                <input 
+                  type="date" 
+                  value={currentStudent.datum} 
+                  onChange={(e) => updateStudent('datum', e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-white text-xs outline-none"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-1">Zeit (Start - Ende)</label>
+                <div className="flex gap-2">
+                  <input type="time" value={currentStudent.start} onChange={(e) => updateStudent('start', e.target.value)} className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs text-white" />
+                  <input type="time" value={currentStudent.ende} onChange={(e) => updateStudent('ende', e.target.value)} className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Bewertungsbereiche */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              <section className="space-y-4">
+                <div className="flex justify-between items-center px-2">
+                  <h3 className="font-bold text-sky-400 uppercase tracking-widest text-xs">Teil 1: Praktisch</h3>
+                  <span className="text-xl font-black text-white">{pSum} / 20</span>
+                </div>
+                <div className="space-y-3">
+                  {CAT_DATA.filter(x => x.section === 'Praktisch').map(c => (
+                    <div key={c.id} className="p-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-sm transition-all hover:border-slate-700">
+                      <label className="text-[10px] font-bold text-slate-500 mb-3 block uppercase">{c.name}</label>
+                      <div className="flex justify-between gap-1">
+                        {[0, 1, 2, 3, 4, 5].map(i => (
+                          <div key={i} className="flex-1">
+                            <input 
+                              type="radio" 
+                              name={c.id} 
+                              id={`${c.id}_${i}`} 
+                              value={i} 
+                              checked={currentStudent.points[c.id] === i}
+                              onChange={(e) => updateScore(c.id, e.target.value)}
+                              className="point-radio" 
+                            />
+                            <label htmlFor={`${c.id}_${i}`} className="point-label">{i}</label>
+                          </div>
+                        ))}
+                      </div>
+                      {currentStudent.points[c.id] !== undefined && (
+                        <p className="mt-2 text-[10px] text-sky-500 italic leading-tight">
+                          {DESCRIPTIONS[c.id][currentStudent.points[c.id]]}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <div className="flex justify-between items-center px-2">
+                  <h3 className="font-bold text-amber-400 uppercase tracking-widest text-xs">Teil 2: Gespräch</h3>
+                  <span className="text-xl font-black text-white">{oSum} / 20</span>
+                </div>
+                <div className="space-y-3">
+                  {CAT_DATA.filter(x => x.section === 'Gespräch').map(c => (
+                    <div key={c.id} className="p-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-sm transition-all hover:border-slate-700">
+                      <label className="text-[10px] font-bold text-slate-500 mb-3 block uppercase">{c.name}</label>
+                      <div className="flex justify-between gap-1">
+                        {[0, 1, 2, 3, 4, 5].map(i => (
+                          <div key={i} className="flex-1">
+                            <input 
+                              type="radio" 
+                              name={c.id} 
+                              id={`${c.id}_${i}`} 
+                              value={i} 
+                              checked={currentStudent.points[c.id] === i}
+                              onChange={(e) => updateScore(c.id, e.target.value)}
+                              className="point-radio" 
+                            />
+                            <label htmlFor={`${c.id}_${i}`} className="point-label">{i}</label>
+                          </div>
+                        ))}
+                      </div>
+                      {currentStudent.points[c.id] !== undefined && (
+                        <p className="mt-2 text-[10px] text-amber-500 italic leading-tight">
+                          {DESCRIPTIONS[c.id][currentStudent.points[c.id]]}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            {/* Niederschrift Textbereich */}
+            <section className="bg-slate-900/50 p-6 rounded-3xl border border-slate-800">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-slate-300 text-sm">Niederschrift: Verlauf des Gesprächs</h3>
+                <button 
+                  onClick={autoFillNotes}
+                  className="text-[10px] bg-sky-500/10 text-sky-400 px-4 py-2 rounded-full border border-sky-500/20 hover:bg-sky-500/20 transition-all font-bold"
+                >
+                  ✨ Kompetenzbeschreibungen einfügen
+                </button>
+              </div>
+              <textarea 
+                value={currentStudent.notizen} 
+                onChange={(e) => updateStudent('notizen', e.target.value)}
+                className="w-full h-48 bg-slate-950 border border-slate-800 p-4 rounded-2xl text-sm leading-relaxed text-slate-400 outline-none resize-none font-mono focus:border-sky-500 transition-colors"
+                placeholder="Notizen zum Prüfungsgespräch..."
+              />
+            </section>
+          </div>
+        ) : (
+          <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-4">
+            <svg className="w-20 h-20 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <p className="font-bold uppercase tracking-[0.2em] text-sm">Bitte Prüfling auswählen oder CSV laden</p>
+          </div>
+        )}
+      </main>
+
+      {/* Druck-Overlay (nur aktiv beim Druckvorgang) */}
+      <div id="print-container" className="hidden print:block fixed inset-0 bg-white z-[9999]">
+        {currentStudent && templates.length > 0 && templates.map((tmpl, tIdx) => (
+          <div key={tIdx} className="relative w-[210mm] h-[297mm] overflow-hidden bg-white">
+            <img src={tmpl} className="absolute inset-0 w-full h-full object-contain z-10" alt={`Seite ${tIdx}`} />
+            <div className="absolute inset-0 z-20 pointer-events-none font-serif text-black">
+              {/* Positionierungslogik für Anlage 6 Seite 1 */}
+              {tIdx === 0 && (
+                <>
+                  <div className="absolute left-[40mm] top-[43mm] text-[11pt]">{currentStudent.name}</div>
+                  <div className="absolute left-[40mm] top-[53mm] text-[11pt]">{currentStudent.thema}</div>
+                  <div className="absolute left-[165mm] top-[43mm] text-[11pt]">{currentStudent.klasse}</div>
+                  
+                  {/* Kreuze für Teil 1 */}
+                  {[0, 1, 2, 3].map((catIdx, i) => {
+                    const score = currentStudent.points[CAT_DATA[catIdx].id];
+                    if (score === undefined || score === null) return null;
+                    const yPos = 100 + (i * 20); // Beispielhafte vertikale Positionierung
+                    const xPos = 110 + (score * 14); // Beispielhafte horizontale Positionierung
+                    return <div key={catIdx} className="absolute font-bold text-[14pt]" style={{ left: `${xPos}mm`, top: `${yPos}mm` }}>X</div>;
+                  })}
+                  <div className="absolute left-[188mm] top-[176mm] font-bold text-[14pt]">{pSum}</div>
+                </>
+              )}
+
+              {/* Positionierungslogik für Anlage 6 Seite 2 */}
+              {tIdx === 1 && (
+                <>
+                  <div className="absolute left-[25mm] top-[40mm] w-[160mm] text-[10pt] whitespace-pre-wrap leading-relaxed">{currentStudent.notizen}</div>
+                  <div className="absolute left-[45mm] top-[175mm] text-[11pt]">{currentStudent.datum}</div>
+                  <div className="absolute left-[45mm] top-[185mm] text-[11pt]">{currentStudent.start}</div>
+                  <div className="absolute left-[165mm] top-[185mm] text-[11pt]">{currentStudent.ende}</div>
+                  
+                  {/* Kreuze für Teil 2 */}
+                  {[4, 5, 6, 7].map((catIdx, i) => {
+                    const score = currentStudent.points[CAT_DATA[catIdx].id];
+                    if (score === undefined || score === null) return null;
+                    const yPos = 205 + (i * 10);
+                    const xPos = 110 + (score * 14);
+                    return <div key={catIdx} className="absolute font-bold text-[14pt]" style={{ left: `${xPos}mm`, top: `${yPos}mm` }}>X</div>;
+                  })}
+                  <div className="absolute left-[95mm] top-[256mm] font-bold text-[18pt]">{total}</div>
+                  <div className="absolute left-[160mm] top-[256mm] font-bold text-[22pt] underline">{grade}</div>
+                </>
+              )}
+              
+              {/* Anlage 5 Seiten (Index 2-7) benötigen analoge Koordinatenlogik basierend auf den Scans */}
+            </div>
+            {/* Erzwungener Seitenumbruch im Druck */}
+            <div style={{ pageBreakAfter: 'always' }} />
+          </div>
+        ))}
+      </div>
+
+      <style>{`
+        .point-radio { display: none; }
+        .point-label {
+          cursor: pointer;
+          width: 100%;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #334155;
+          border-radius: 6px;
+          transition: all 0.2s;
+          font-size: 0.875rem;
+          color: #94a3b8;
+        }
+        .point-radio:checked + .point-label {
+          background-color: #38bdf8;
+          border-color: #38bdf8;
+          color: #0f172a;
+          font-weight: bold;
+          box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
         @media print {
-            body > *:not(#print-area) {
-                display: none !important;
-            }
-            #print-area {
-                display: block !important;
-                visibility: visible !important;
-                position: static !important;
-                width: 100% !important;
-                background: white !important;
-                color: black !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            .page-break { 
-                display: block;
-                page-break-after: always;
-                break-after: page;
-                padding: 2cm;
-                margin: 0;
-                background: white !important;
-                color: black !important;
-                height: 100vh;
-                box-sizing: border-box;
-            }
-            .page-break:last-child { 
-                page-break-after: avoid;
-                break-after: avoid;
-            }
-            @page {
-                margin: 0;
-                size: A4;
-            }
+          .no-print { display: none !important; }
+          #print-container { display: block !important; }
         }
-
-        .letter-preview-card {
-            background: white;
-            color: #1e293b;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-    </style>
-</head>
-<body class="min-h-screen p-4 md:p-8 text-slate-200">
-
-    <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <header class="mb-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-blue-500">Relution Helper</h1>
-                <p class="text-slate-400 mt-1">GMS Goldberg IT-Management</p>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row gap-3">
-                <div class="bg-slate-800 p-1 rounded-lg flex items-center shadow-lg border border-slate-700">
-                    <button id="btn-mode-user" onclick="setMode('user')" class="px-3 py-2 rounded-md text-xs font-medium transition-all bg-blue-600 text-white shadow-sm btn-icon">
-                        <i data-lucide="users" class="w-4 h-4 mr-2"></i>User Import
-                    </button>
-                    <button id="btn-mode-device" onclick="setMode('device')" class="px-3 py-2 rounded-md text-xs font-medium transition-all text-slate-400 hover:text-white btn-icon">
-                        <i data-lucide="tablet" class="w-4 h-4 mr-2"></i>Endgeräte
-                    </button>
-                    <button id="btn-mode-letter" onclick="setMode('letter')" class="px-3 py-2 rounded-md text-xs font-medium transition-all text-slate-400 hover:text-white btn-icon">
-                        <i data-lucide="mail" class="w-4 h-4 mr-2"></i>Serienbrief
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="space-y-6">
-            <div id="setup-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Step 1: Input -->
-                <div class="lg:col-span-2 space-y-6">
-                    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                            <div class="flex items-center">
-                                <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3">1</span>
-                                <h2 id="section-title" class="text-xl font-semibold">Schülerliste hochladen</h2>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="document.getElementById('jsonFileInput').click()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md flex items-center transition-colors btn-icon">
-                                    <i data-lucide="folder-open" class="w-3.5 h-3.5 mr-2"></i>Status laden
-                                </button>
-                                <input type="file" id="jsonFileInput" class="hidden" accept=".json" onchange="loadState(this)">
-                            </div>
-                        </div>
-                        
-                        <div id="dropzone" class="custom-dropzone rounded-xl p-12 text-center cursor-pointer mb-2">
-                            <input type="file" id="fileInput" class="hidden" accept=".csv, .xlsx, .xls">
-                            <div class="flex flex-col items-center pointer-events-none">
-                                <i data-lucide="upload-cloud" class="w-14 h-14 text-blue-500 mb-4"></i>
-                                <span class="text-lg font-medium text-slate-200">Datei auswählen oder ziehen</span>
-                                <span class="text-xs text-slate-500 mt-2 text-center">Unterstützt .xlsx, .csv</span>
-                            </div>
-                        </div>
-                        <div id="mapping-info-box" class="hidden flex items-center gap-2 mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                            <i data-lucide="search" class="w-4 h-4 text-blue-400"></i>
-                            <span id="mapping-text" class="text-xs text-slate-400"></span>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Step 2: Options Container -->
-                <div id="options-container" class="space-y-6">
-                    <section id="user-options" class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl h-full flex flex-col">
-                        <div class="flex items-center mb-4">
-                            <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3">2</span>
-                            <h2 class="text-xl font-semibold">Namensliste anpassen</h2>
-                        </div>
-                        <textarea id="user-names-input" 
-                                  class="w-full flex-grow bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 min-h-[250px]"
-                                  placeholder="Vorname;Nachname;Klasse..."
-                                  oninput="generateUsers(); renderTable();"></textarea>
-                    </section>
-
-                    <section id="device-options" class="hidden bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl h-full flex flex-col">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center">
-                                <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3">2</span>
-                                <h2 class="text-xl font-semibold">User-Zuweisung</h2>
-                            </div>
-                            <button onclick="openRenamingModal()" class="text-[10px] bg-slate-700 hover:bg-blue-600 px-2 py-1 rounded transition-colors flex items-center">
-                                <i data-lucide="hash" class="w-3 h-3 mr-1"></i>iPad-Namen
-                            </button>
-                        </div>
-                        <textarea id="user-list-input" 
-                                  class="w-full flex-grow bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-600 min-h-[250px]"
-                                  placeholder="E-Mail pro Zeile..."
-                                  oninput="processDeviceAssignment(); renderTable();"></textarea>
-                    </section>
-                </div>
-            </div>
-
-            <!-- Preview Section -->
-            <section id="preview-section" class="hidden bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <div class="flex items-center">
-                        <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3">3</span>
-                        <h2 class="text-xl font-semibold">Vorschau & Export</h2>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-2">
-                        <button id="link-to-devices-btn" onclick="transferUsernames()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-lg flex items-center shadow-md">
-                            <i data-lucide="link" class="w-4 h-4 mr-2"></i>E-Mails an Geräte übertragen
-                        </button>
-                        <button id="save-main-btn" onclick="saveState('save')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-lg flex items-center shadow-md">
-                            <i data-lucide="save" class="w-4 h-4 mr-2"></i>Status Sichern
-                        </button>
-                        <button onclick="saveState('backup')" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-4 py-2 rounded-lg flex items-center shadow-md">
-                            <i data-lucide="hard-drive" class="w-4 h-4 mr-2"></i>Backup erstellen
-                        </button>
-                        <button onclick="clearAllData()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs px-3 py-2 rounded-lg flex items-center transition-colors">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto mb-6 border border-slate-700 rounded-lg bg-slate-900/40 shadow-inner no-scrollbar">
-                    <table id="preview-table" class="text-left text-xs">
-                        <thead class="bg-slate-950 text-slate-300">
-                            <tr id="table-header"></tr>
-                        </thead>
-                        <tbody id="table-body" class="bg-slate-900/50"></tbody>
-                    </table>
-                </div>
-
-                <div class="flex flex-col md:flex-row gap-4 items-center justify-between border-t border-slate-700 pt-6">
-                    <div id="status-info" class="text-sm text-slate-400 italic">Keine Daten.</div>
-                    <button id="export-btn" onclick="exportData()" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-lg flex items-center justify-center shadow-lg btn-icon">
-                        <i data-lucide="download" class="w-5 h-5 mr-2"></i>CSV Export (Relution)
-                    </button>
-                </div>
-            </section>
-
-            <!-- Letter Section -->
-            <section id="letter-section" class="hidden space-y-6">
-                <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl">
-                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-                        <h2 class="text-xl font-semibold flex items-center">
-                            <i data-lucide="printer" class="w-6 h-6 mr-3 text-amber-500"></i>Serienbrief-Verwaltung
-                        </h2>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="printLoginSlips()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-6 py-2.5 rounded-lg flex items-center shadow-md font-bold">
-                                <i data-lucide="printer" class="w-4 h-4 mr-2"></i>Zettel drucken (PDF)
-                            </button>
-                            <button onclick="exportLetterLatex()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-6 py-2.5 rounded-lg flex items-center shadow-md font-bold">
-                                <i data-lucide="file-code" class="w-4 h-4 mr-2"></i>LaTeX Export
-                            </button>
-                        </div>
-                    </div>
-                    <div id="letter-preview-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[600px] overflow-y-auto p-4 bg-slate-950/50 rounded-xl border border-slate-700 no-scrollbar"></div>
-                    <div id="letter-status-empty" class="text-center py-20 text-slate-500">
-                        <i data-lucide="user-plus" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
-                        <p>Keine Schülerdaten vorhanden.</p>
-                    </div>
-                </div>
-            </section>
-        </main>
+      `}</style>
     </div>
-
-    <!-- Hidden Print Area -->
-    <div id="print-area" class="hidden"></div>
-
-    <!-- Conflict Modal -->
-    <div id="import-dialog" class="fixed inset-0 z-[60] hidden modal-overlay flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 class="text-xl font-bold mb-4 flex items-center text-blue-400">
-                <i data-lucide="alert-circle" class="mr-2"></i> Daten gefunden
-            </h3>
-            <p class="text-sm text-slate-300 mb-6">Die Datei enthält bereits Zuweisungen. Wie möchtest du fortfahren?</p>
-            <div class="space-y-3">
-                <div class="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" id="check-clear-users" class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded">
-                        <span class="ml-3 text-sm">Vorhandene E-Mails/Nutzer löschen</span>
-                    </label>
-                </div>
-                <div class="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" id="check-keep-names" checked class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded">
-                        <span class="ml-3 text-sm">Vorhandene iPad-Namen behalten</span>
-                    </label>
-                </div>
-            </div>
-            <div class="mt-8 flex gap-3">
-                <button onclick="confirmImportOptions()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold">Bestätigen</button>
-                <button onclick="closeImportDialog()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-4 py-2 rounded-lg">Abbrechen</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Renaming Modal -->
-    <div id="renaming-modal" class="fixed inset-0 z-[60] hidden modal-overlay flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 class="text-xl font-bold mb-4 flex items-center text-indigo-400"><i data-lucide="hash" class="mr-2"></i> iPad-Namen verwalten</h3>
-            <div class="space-y-4">
-                <div><label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Präfix</label><input type="text" id="renaming-prefix" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none" placeholder="iPad-GMSG-"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Start</label><input type="number" id="renaming-start" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none" value="1"></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Stellen</label><select id="renaming-digits" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option></select></div>
-                </div>
-            </div>
-            <div class="mt-8 flex gap-3"><button onclick="applyRenaming()" class="flex-grow bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-bold">Anwenden</button><button onclick="closeRenamingModal()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-4 py-2 rounded-lg">Schließen</button></div>
-        </div>
-    </div>
-
-    <!-- Notification -->
-    <div id="notification" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 bg-blue-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center z-50">
-        <i data-lucide="info" class="w-6 h-6 mr-3"></i><span id="notification-text">Hinweis</span>
-    </div>
-
-    <script>
-        let appState = {
-            user: { raw: [], processed: [], mapping: "", textInput: "" },
-            device: { raw: [], processed: [], textInput: "", renamingConfig: null }
-        };
-        
-        let currentMode = 'user';
-        let pendingDeviceData = null;
-        let currentFileHandle = null;
-
-        lucide.createIcons();
-
-        // Warnung beim Verlassen
-        window.addEventListener('beforeunload', function (e) {
-            if (appState.user.processed.length > 0 || appState.device.raw.length > 0) {
-                const msg = 'Ungespeicherte Änderungen gehen verloren.';
-                (e || window.event).returnValue = msg; 
-                return msg;
-            }
-        });
-
-        function setMode(mode) {
-            currentMode = mode;
-            ['btn-mode-user', 'btn-mode-device', 'btn-mode-letter'].forEach(id => {
-                const btn = document.getElementById(id);
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('text-slate-400');
-            });
-            
-            const activeBtn = document.getElementById('btn-mode-' + mode);
-            activeBtn.classList.add('bg-blue-600', 'text-white');
-            activeBtn.classList.remove('text-slate-400');
-
-            document.getElementById('setup-container').classList.toggle('hidden', mode === 'letter');
-            document.getElementById('preview-section').classList.toggle('hidden', mode === 'letter' || (mode === 'user' && appState.user.processed.length === 0) || (mode === 'device' && appState.device.raw.length === 0));
-            document.getElementById('letter-section').classList.toggle('hidden', mode !== 'letter');
-            document.getElementById('user-options').classList.toggle('hidden', mode !== 'user');
-            document.getElementById('device-options').classList.toggle('hidden', mode !== 'device');
-            document.getElementById('link-to-devices-btn').classList.toggle('hidden', mode !== 'user');
-            
-            if (mode === 'user') {
-                document.getElementById('section-title').innerText = "SuS-Daten importieren";
-            } else if (mode === 'device') {
-                document.getElementById('section-title').innerText = "Endgeräte verwalten";
-            } else if (mode === 'letter') {
-                renderLetterPreview();
-            }
-            renderTable();
-            lucide.createIcons();
-        }
-
-        const fileInput = document.getElementById('fileInput');
-        const dropzone = document.getElementById('dropzone');
-
-        dropzone.addEventListener('click', () => fileInput.click());
-        dropzone.addEventListener('dragover', (e) => { 
-            e.preventDefault(); 
-            dropzone.classList.add('drag-over'); 
-        });
-        dropzone.addEventListener('dragleave', () => { 
-            dropzone.classList.remove('drag-over'); 
-        });
-        dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropzone.classList.remove('drag-over');
-            if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-        });
-
-        fileInput.addEventListener('change', (e) => { if(e.target.files[0]) handleFile(e.target.files[0]); });
-
-        function handleFile(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
-                const wb = XLSX.read(data, { type: 'array' });
-                const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                
-                if (currentMode === 'user') {
-                    appState.user.raw = json;
-                    
-                    if (json.length === 0) return;
-                    
-                    const keys = Object.keys(json[0] || {});
-                    
-                    const fK = keys.find(k => {
-                        const low = k.toLowerCase();
-                        return (low === 'vorname' || low === 'vornamen' || low === 'given name' || low === 'first name') && !low.includes('nach');
-                    }) || keys.find(k => k.toLowerCase().includes('vor')) || keys[1];
-                    
-                    const lK = keys.find(k => {
-                        const low = k.toLowerCase();
-                        return (low === 'nachname' || low === 'familienname' || low === 'surname' || low === 'last name' || low === 'name') && !low.includes('vor');
-                    }) || keys.find(k => k.toLowerCase().includes('nach') || k.toLowerCase().includes('familie')) || keys[2];
-                    
-                    const cK = keys.find(k => {
-                        const low = k.toLowerCase();
-                        return low === 'klasse' || low === 'class' || low.includes('klass');
-                    }) || '';
-
-                    appState.user.mapping = `Erkannt: <b>${fK}</b> (Vorname), <b>${lK}</b> (Nachname)${cK ? ', <b>'+cK+'</b> (Klasse)' : ''}`;
-                    
-                    appState.user.textInput = json.map(r => {
-                        const f = (r[fK] || "").toString().trim();
-                        const l = (r[lK] || "").toString().trim();
-                        const c = cK ? (r[cK] || "").toString().trim() : "";
-                        return `${f};${l};${c}`;
-                    }).join('\n');
-                    
-                    document.getElementById('user-names-input').value = appState.user.textInput;
-                    generateUsers();
-                    setMode('user');
-                } else {
-                    pendingDeviceData = json;
-                    checkForConflicts(json);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function checkForConflicts(data) {
-            const hasExisting = data.some(r => r.userEmail || r.userName || r.name || r.Gerätename);
-            if (hasExisting) {
-                document.getElementById('import-dialog').classList.remove('hidden');
-            } else {
-                confirmImportOptions();
-            }
-        }
-
-        function confirmImportOptions() {
-            const clearUsers = document.getElementById('check-clear-users').checked;
-            const keepNames = document.getElementById('check-keep-names').checked;
-            
-            appState.device.raw = pendingDeviceData.map(r => {
-                let row = {...r};
-                if (clearUsers) { delete row.userEmail; delete row.userName; }
-                if (!keepNames) { delete row.name; delete row.Gerätename; }
-                return row;
-            });
-            
-            closeImportDialog();
-            processDeviceAssignment();
-            setMode('device');
-        }
-
-        function closeImportDialog() {
-            document.getElementById('import-dialog').classList.add('hidden');
-            pendingDeviceData = null;
-        }
-
-        function generatePassword() {
-            const c = "abcdefghjkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-            let p = ""; for(let i=0; i<10; i++) p += c.charAt(Math.floor(Math.random()*c.length));
-            return p;
-        }
-
-        function generateUsers() {
-            const val = document.getElementById('user-names-input').value;
-            appState.user.textInput = val;
-            
-            const mappingBox = document.getElementById('mapping-info-box');
-            mappingBox.classList.toggle('hidden', !appState.user.mapping);
-            document.getElementById('mapping-text').innerHTML = appState.user.mapping || "";
-
-            appState.user.processed = val.split('\n').filter(l => l.trim() !== "").map(l => {
-                const p = l.split(';');
-                const f = (p[0]||"").trim(), s = (p[1]||"").trim(), c = (p[2]||"").trim();
-                
-                const clean = (str) => str.toLowerCase()
-                    .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
-                    .replace(/[^a-z0-9.]/g,'');
-                
-                const u = `${clean(f)}.${clean(s)}`;
-                
-                return { 
-                    name: u, 
-                    email: `${u}@company.com`, 
-                    givenName: f, 
-                    surname: s, 
-                    password: generatePassword(), 
-                    studentOfClasses: c, 
-                    disablePasswordAuthentication: 'false', 
-                    managedAppleId: '', 
-                    locale: 'de_DE', 
-                    memberOfGroups: 'GMS_GOLDBERG Student;GMS_GOLDBERG Appstore' 
-                };
-            });
-            document.getElementById('status-info').innerText = `${appState.user.processed.length} User bereit.`;
-        }
-
-        function processDeviceAssignment() {
-            const listInput = document.getElementById('user-list-input').value;
-            appState.device.textInput = listInput;
-            const list = listInput.split('\n').map(u => u.trim());
-            const config = appState.device.renamingConfig;
-            
-            appState.device.processed = appState.device.raw.map((r, i) => {
-                const u = list[i] !== undefined && list[i] !== "" ? list[i] : (r['userEmail'] || r['userName'] || '');
-                let n = r['name'] || r['Gerätename'] || 'iPad';
-                if(config) n = `${config.prefix}${(config.start+i).toString().padStart(config.digits,'0')}`;
-                return { serialNumber: r['serialNumber'] || r['Seriennummer'] || '', name: n, userEmail: u };
-            });
-            document.getElementById('status-info').innerText = `${appState.device.processed.length} Geräte bereit.`;
-        }
-
-        function transferUsernames() {
-            if (appState.user.processed.length === 0) return showNotification("Keine User vorhanden.");
-            const emails = appState.user.processed.map(u => u.email).join('\n');
-            document.getElementById('user-list-input').value = emails;
-            appState.device.textInput = emails;
-            processDeviceAssignment();
-            setMode('device');
-            showNotification("E-Mail-Adressen an Geräte übertragen.");
-        }
-
-        function renderTable() {
-            const data = currentMode === 'user' ? appState.user.processed : appState.device.processed;
-            const head = document.getElementById('table-header'), body = document.getElementById('table-body');
-            if(!data || data.length === 0) { head.innerHTML = ""; body.innerHTML = ""; return; }
-            const keys = Object.keys(data[0]);
-            head.innerHTML = keys.map(k => `<th class="resizable-th px-4 py-2 uppercase font-bold text-slate-500 bg-slate-950 border-b border-blue-500/50"><span class="truncate block pr-2">${k}</span><div class="resizer" onmousedown="initResize(event, this.parentElement)"></div></th>`).join('');
-            body.innerHTML = data.slice(0, 50).map(r => `<tr class="hover:bg-blue-900/10 transition-colors">${keys.map(k => `<td class="px-4 py-2 truncate text-slate-300">${r[k]||'-'}</td>`).join('')}</tr>`).join('');
-        }
-
-        function renderLetterPreview() {
-            const container = document.getElementById('letter-preview-container');
-            const empty = document.getElementById('letter-status-empty');
-            if (appState.user.processed.length === 0) { container.innerHTML = ""; empty.classList.remove('hidden'); return; }
-            empty.classList.add('hidden');
-            container.innerHTML = appState.user.processed.map(u => `
-                <div class="letter-preview-card p-8 rounded-lg border border-slate-200 relative">
-                    <div class="text-[9pt] text-right text-slate-500 leading-tight">
-                        <strong>GMS Goldberg</strong><br>Goldbergstraße 34<br>71065 Sindelfingen<br>07031-4103190<br>poststelle@04121769.schule.bwl.de
-                    </div>
-                    <div class="mt-4 font-bold border-b border-slate-300 pb-1 text-blue-600">iPad Zugangsdaten</div>
-                    <p class="mt-4 text-xs">Hallo <strong>${u.givenName} ${u.surname}</strong>,</p>
-                    <div class="my-4 p-4 bg-slate-50 border-l-4 border-blue-500 rounded text-[11px]">
-                        <div class="grid grid-cols-2 gap-y-1">
-                            <span class="font-bold text-slate-400 text-[8px]">NUTZER</span><span>${u.name}</span>
-                            <span class="font-bold text-slate-400 text-[8px]">PASSWORT</span><span class="text-blue-700 font-bold">${u.password}</span>
-                            <span class="font-bold text-slate-400 text-[8px]">E-MAIL</span><span>${u.email}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function printLoginSlips() {
-            const area = document.getElementById('print-area');
-            area.innerHTML = '';
-            area.classList.remove('hidden');
-
-            const content = appState.user.processed.map(u => `
-                <div class="page-break">
-                    <!-- Kopfzeile verteilt über die volle Breite -->
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid black; padding-bottom: 10px; margin-bottom: 1cm; color: black;">
-                        <div style="font-size: 14pt; font-weight: 800; text-transform: uppercase;">
-                            GMS Goldberg
-                        </div>
-                        <div style="text-align: right; font-size: 8.5pt; line-height: 1.4;">
-                            Goldbergstraße 34, 71065 Sindelfingen<br>
-                            Tel.: 07031-4103190 | Fax: 07031-41031924<br>
-                            Mail: poststelle@04121769.schule.bwl.de
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 1cm; font-size: 18pt; font-weight: 800; color: black; padding-bottom: 5px;">
-                        Deine Zugangsdaten für das iPad
-                    </div>
-                    
-                    <p style="margin-top: 1.5cm; font-size: 12pt; color: black;">
-                        Hallo <strong>${u.givenName} ${u.surname}</strong>,
-                    </p>
-                    <p style="font-size: 11pt; color: black; margin-bottom: 1cm;">
-                        hier sind deine persönlichen Zugangsdaten für dein iPad und dein Relution-Benutzerkonto. Bitte bewahre diesen Zettel sicher auf.
-                    </p>
-
-                    <div style="margin: 1.5cm 0; padding: 1.5cm 1cm; border: 2px solid black; border-radius: 4px; background: white;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 13pt; color: black;">
-                            <tr>
-                                <td style="padding: 12px; font-size: 9pt; text-transform: uppercase; font-weight: bold; width: 180px;">Benutzername</td>
-                                <td style="font-family: monospace; font-weight: bold; font-size: 14pt;">${u.name}</td>
-                            </tr>
-                            <tr style="border-top: 1px solid black;">
-                                <td style="padding: 12px; font-size: 9pt; text-transform: uppercase; font-weight: bold;">E-Mail</td>
-                                <td style="font-family: monospace;">${u.email}</td>
-                            </tr>
-                            <tr style="border-top: 1px solid black;">
-                                <td style="padding: 12px; font-size: 9pt; text-transform: uppercase; font-weight: bold;">Passwort</td>
-                                <td style="font-family: monospace; font-weight: bold; font-size: 14pt;">${u.password}</td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div style="margin-top: 1cm; font-size: 10pt; line-height: 1.6; color: black;">
-                        <strong>Wichtige Hinweise:</strong><br>
-                        • Gib dein Passwort niemals an Dritte weiter.<br>
-                        • Lehrkräfte fragen dich niemals nach deinem Passwort.<br>
-                        • Die Nutzung erfolgt gemäß der geltenden Schulordnung.
-                    </div>
-
-                    <div style="margin-top: auto; padding-top: 2cm; font-size: 11pt; color: black;">
-                        Mit freundlichen Grüßen,<br><br>
-                        <strong>Dein IT-Team der GMS Goldberg</strong>
-                    </div>
-                </div>
-            `).join('');
-            
-            area.innerHTML = content;
-
-            setTimeout(() => {
-                window.print();
-                area.classList.add('hidden');
-                area.innerHTML = '';
-            }, 100);
-        }
-
-        function exportData() {
-            let data = currentMode === 'user' ? appState.user.processed : appState.device.processed;
-            if (data.length === 0) return;
-            let finalData = data;
-            if (currentMode === 'user') {
-                finalData = data.map(u => ({ 
-                    name: u.name, email: u.email, givenName: u.givenName, surname: u.surname, password: u.password, 
-                    disablePasswordAuthentication: u.disablePasswordAuthentication, phone: '', position: '', country: '', 
-                    managedAppleId: '', locale: u.locale, memberOfGroups: u.memberOfGroups, teacherOfClasses: '', studentOfClasses: u.studentOfClasses 
-                }));
-            } else {
-                finalData = data.map(d => ({ 
-                    serialNumber: d.serialNumber, name: d.name, userEmail: d.userEmail, 
-                    depProfile: '', enrollToOrganizationUuid: '', Benutzertyp: '', 'zuordnung Koffer': '' 
-                }));
-            }
-            const ws = XLSX.utils.json_to_sheet(finalData);
-            const csv = XLSX.utils.sheet_to_csv(ws, { forceQuotes: true, FS: ',' });
-            const blob = new Blob(["\ufeff", csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `Relution_${currentMode}_Export.csv`; a.click();
-        }
-
-        async function saveState(type) {
-            const now = new Date();
-            const timestamp = now.toISOString().split('T')[0] + '_' + now.toLocaleTimeString('de-DE').replace(/:/g, '-');
-            const state = JSON.stringify({ appState, timestamp: now.toISOString() }, null, 2);
-
-            if (type === 'backup') {
-                const blob = new Blob([state], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url;
-                a.download = `Relution_Backup_${timestamp}.json`; a.click();
-                showNotification("Backup erstellt.");
-                return;
-            }
-
-            if (window.showSaveFilePicker) {
-                try {
-                    if (!currentFileHandle) {
-                        currentFileHandle = await window.showSaveFilePicker({
-                            suggestedName: `Relution_Helper_Status.json`,
-                            types: [{ description: 'JSON File', accept: { 'application/json': ['.json'] } }]
-                        });
-                    }
-                    const writable = await currentFileHandle.createWritable();
-                    await writable.write(state);
-                    await writable.close();
-                    showNotification("Status gesichert.");
-                } catch (err) {
-                    if (err.name !== 'AbortError') {
-                        downloadState(state);
-                    }
-                }
-            } else {
-                downloadState(state);
-            }
-        }
-
-        function downloadState(content) {
-            const blob = new Blob([content], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url;
-            a.download = `Relution_Helper_Status.json`; a.click();
-            showNotification("Status heruntergeladen.");
-        }
-
-        function loadState(input) {
-            const f = input.files[0]; if(!f) return;
-            const r = new FileReader();
-            r.onload = (e) => {
-                const loaded = JSON.parse(e.target.result);
-                if(loaded.appState) appState = loaded.appState;
-                document.getElementById('user-names-input').value = appState.user.textInput || "";
-                document.getElementById('user-list-input').value = appState.device.textInput || "";
-                setMode(currentMode);
-                showNotification("Status geladen.");
-            };
-            r.readAsText(f);
-            input.value = "";
-        }
-
-        function exportLetterLatex() {
-            if (appState.user.processed.length === 0) return showNotification("Keine Daten.");
-            
-            let tex = `\\documentclass[11pt, a4paper]{article}
-\\usepackage[a4paper, top=2cm, bottom=2cm, left=2.5cm, right=2.5cm]{geometry}
-\\usepackage{fontspec}
-\\usepackage[german]{babel}
-\\usepackage{tcolorbox}
-\\usepackage{tabularx}
-\\babelfont{rm}{Noto Sans}
-
-\\newcommand{\\zugangsdaten}[5]{
-    \\begin{flushright}\\small\\textbf{GMS Goldberg}\\\\Goldbergstraße 34, 71065 Sindelfingen\\\\Tel.: 07031-4103190\\\\poststelle@04121769.schule.bwl.de\\end{flushright}
-    \\vspace{1cm}\\noindent\\textbf{iPad Zugangsdaten}\\\\Sindelfingen, den \\today \\bigskip
-    \\\\Hallo #1 #2, \\medskip\\\\hier sind deine persönlichen Zugangsdaten:\\\\
-    \\begin{tcolorbox}[colback=white,colframe=black,title=Login-Details (Klasse #5)]
-    \\renewcommand{\\arraystretch}{1.5}
-    \\begin{tabularx}{\\textwidth}{l X} \\textbf{Benutzername:} & \\texttt{#3} \\\\ \\textbf{E-Mail:} & \\texttt{#3@company.com} \\\\ \\textbf{Passwort:} & \\texttt{#4} \\end{tabularx}
-    \\end{tcolorbox}
-    \\newpage
+  );
 }
-\\begin{document}\\pagestyle{empty}\n`;
-
-            appState.user.processed.forEach(u => {
-                tex += `\\zugangsdaten{${u.givenName}}{${u.surname}}{${u.name}}{${u.password}}{${u.studentOfClasses || '-'}}\n`;
-            });
-
-            tex += `\\end{document}`;
-
-            const blob = new Blob([tex], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `Relution_Serienbrief.tex`; a.click();
-            showNotification("LaTeX Datei erzeugt!");
-        }
-
-        function clearAllData() {
-            appState = { user: { raw: [], processed: [], mapping: "", textInput: "" }, device: { raw: [], processed: [], textInput: "", renamingConfig: null } };
-            document.getElementById('user-names-input').value = ""; document.getElementById('user-list-input').value = "";
-            setMode('user'); showNotification("Daten gelöscht.");
-        }
-
-        function showNotification(t) {
-            const toast = document.getElementById('notification');
-            document.getElementById('notification-text').innerText = t;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
-        }
-
-        function openRenamingModal() { document.getElementById('renaming-modal').classList.remove('hidden'); }
-        function closeRenamingModal() { document.getElementById('renaming-modal').classList.add('hidden'); }
-        function applyRenaming() {
-            appState.device.renamingConfig = { prefix: document.getElementById('renaming-prefix').value, start: parseInt(document.getElementById('renaming-start').value)||1, digits: parseInt(document.getElementById('renaming-digits').value)||1 };
-            processDeviceAssignment(); renderTable(); closeRenamingModal();
-        }
-
-        let isResizing = false, sX, sW, cTh;
-        function initResize(e, th) { isResizing = true; cTh = th; sX = e.pageX; sW = th.offsetWidth; document.addEventListener('mousemove', hMM); document.addEventListener('mouseup', hMU); }
-        function hMM(e) { if(!isResizing) return; const w = sW + (e.pageX - sX); if(w > 50) cTh.style.width = w + 'px'; }
-        function hMU() { isResizing = false; document.removeEventListener('mousemove', hMM); document.removeEventListener('mouseup', hMU); }
-
-        window.onload = () => setMode('user');
-    </script>
-</body>
-</html>
